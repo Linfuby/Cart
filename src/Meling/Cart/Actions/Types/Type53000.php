@@ -11,7 +11,7 @@ class Type53000 extends Type
     public function name()
     {
         if($this->action) {
-            return $this->action->name;
+            return $this->action->getField('name');
         }
 
         return 'Без Акции';
@@ -20,13 +20,9 @@ class Type53000 extends Type
     /**
      * @return int
      */
-    public function total()
+    public function totalDiscount()
     {
-        if($this->total === null) {
-            $this->total = 0;
-        }
 
-        return $this->total;
     }
 
 }

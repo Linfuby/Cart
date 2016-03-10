@@ -3,7 +3,6 @@ namespace Meling\Cart\Totals;
 
 class Amount extends ExtendedTotal
 {
-
     public function name()
     {
         return 'Сумма:';

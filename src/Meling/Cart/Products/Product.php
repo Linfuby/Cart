@@ -3,25 +3,60 @@ namespace Meling\Cart\Products;
 
 class Product
 {
+    protected $id;
+
+    protected $option;
+
+    protected $price;
+
+    protected $priceFinal;
+
+    protected $quantity;
+
     /**
      * Product constructor.
-     * @param int   $id
-     * @param mixed $productCart
+     * @param int                                        $id
+     * @param \PHPixie\ORM\Wrappers\Type\Database\Entity $option
+     * @param int                                        $price
+     * @param int                                        $quantity
      */
-    public function __construct($id, $productCart)
+    public function __construct($id, $option, $price = 0, $quantity = 1)
     {
-        $this->id           = $id;
-        $this->customerId   = empty($productCart->customerId) ? null : $productCart->customerId;
-        $this->optionId     = empty($productCart->optionId) ? null : $productCart->optionId;
-        $this->shopId       = empty($productCart->shopId) ? null : $productCart->shopId;
-        $this->deliveryId   = empty($productCart->deliveryId) ? null : $productCart->deliveryId;
-        $this->shopTariffId = empty($productCart->shopTariffId) ? null : $productCart->shopTariffId;
-        $this->addressId    = empty($productCart->addressId) ? null : $productCart->addressId;
-        $this->pvz          = empty($productCart->pvz) ? null : $productCart->pvz;
-        $this->price        = empty($productCart->price) ? null : $productCart->price;
-        $this->old_price    = !empty($productCart->old_price) && $productCart->special ? $productCart->old_price : null;
-        $this->quantity     = empty($productCart->quantity) ? null : $productCart->quantity;
-        $this->priceFinal   = $this->price();
+        $this->id         = $id;
+        $this->option     = $option;
+        $this->price      = $price;
+        $this->quantity   = $quantity;
+        $this->priceTotal = (int)$this->price * (int)$this->quantity;
+        $this->priceFinal = $this->priceTotal;
+    }
+
+    function __call($name, $arguments)
+    {
+        return $this->option->product()->{$name}();
+    }
+
+    public function __get($name)
+    {
+        return $this->option->product()->{$name};
+    }
+
+    /**
+     * @return \PHPixie\ORM\Wrappers\Type\Database\Entity[]
+     */
+    public function actionProducts()
+    {
+        //TODO
+        return array();
+    }
+
+    function id()
+    {
+        return $this->id;
+    }
+
+    public function option()
+    {
+        return $this->option;
     }
 
     /**
@@ -37,7 +72,7 @@ class Product
      */
     public function priceFinal()
     {
-        return (int)($this->priceFinal);
+        return $this->priceFinal;
     }
 
     /**
@@ -45,20 +80,7 @@ class Product
      */
     public function priceTotal()
     {
-        return (int)($this->price * $this->quantity());
-    }
-
-    public function priceTotalFinal()
-    {
-        return (int)($this->priceFinal() * $this->quantity());
-    }
-
-    /**
-     * @return int
-     */
-    public function priceTotalOld()
-    {
-        return (int)($this->old_price * $this->quantity());
+        return $this->priceTotal;
     }
 
     /**

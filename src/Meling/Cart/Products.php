@@ -8,17 +8,29 @@ namespace Meling\Cart;
 class Products
 {
     /**
-     * @var Builder
+     * @var \Meling\Cart\Providers\Subject
      */
-    protected $builder;
+    protected $subject;
+
+    /**
+     * @var Providers\Objects
+     */
+    protected $objects;
+
+    /**
+     * @var Products\Product[]
+     */
+    protected $products;
 
     /**
      * Products constructor.
-     * @param Builder           $builder
+     * @param Providers\Subject $subject
+     * @param Providers\Objects $objects
      */
-    public function __construct(Builder $builder)
+    public function __construct(Providers\Subject $subject, Providers\Objects $objects)
     {
-        $this->builder = $builder;
+        $this->subject = $subject;
+        $this->objects = $objects;
     }
 
     /**
@@ -28,12 +40,16 @@ class Products
      */
     public function add($product, $data = array())
     {
-        return $this->builder->objects()->add($product, $data);
+        $this->products = null;
+
+        return $this->objects->add($data);
     }
 
     public function asArray()
     {
-        return $this->builder->objects()->objects();
+        $this->requireProducts();
+
+        return $this->products;
     }
 
     /**
@@ -41,7 +57,18 @@ class Products
      */
     public function clear()
     {
-        return $this->builder->objects()->clear();
+        $this->products = null;
+
+        return $this->objects->clear();
+    }
+
+    public function get($id)
+    {
+        $this->requireProducts();
+        if(array_key_exists($id, $this->products)) {
+            return $this->products[$id];
+        }
+        throw new \Exception('Product ' . $id . ' does not exist');
     }
 
     /**
@@ -50,7 +77,22 @@ class Products
      */
     public function remove($id)
     {
-        return $this->builder->objects()->remove($id);
+        $this->products = null;
+
+        return $this->objects->remove($id);
+    }
+
+    protected function requireProducts()
+    {
+        if($this->products !== null) {
+            return;
+        }
+        $products = array();
+        foreach($this->objects->objects() as $key => $object) {
+            // TODO
+            $products[] = new Products\Product($key, $object);
+        }
+        $this->products = $products;
     }
 
 }

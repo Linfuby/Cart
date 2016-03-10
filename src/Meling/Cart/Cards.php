@@ -42,7 +42,7 @@ class Cards
         $cards = array();
         foreach($this->subject->cards() as $card) {
             $discount = 0;
-            $card     = new Cards\Card($card->id, $card->number, $card->discount, $card->rewards);
+            $card     = new Cards\Card($card->id, $card->name, $card->discount, $card->rewards);
             if($card->discount() >= $discount) {
                 $this->card = $card;
             }

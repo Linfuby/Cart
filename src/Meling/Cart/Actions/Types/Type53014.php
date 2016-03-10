@@ -6,7 +6,7 @@ namespace Meling\Cart\Actions\Types;
  * Class Type53014
  * @package Meling\Cart\Actions\Types
  */
-class Type53014 extends Extension implements Type
+class Type53014 extends Type
 {
     /**
      * @return int

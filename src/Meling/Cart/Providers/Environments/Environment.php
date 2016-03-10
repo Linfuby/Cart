@@ -14,6 +14,21 @@ class Environment implements \Meling\Cart\Providers\Environment
     protected $repositories;
 
     /**
+     * @var \PHPixie\ORM\Loaders\Loader\Proxy\Caching
+     */
+    protected $actions;
+
+    /**
+     * @var \PHPixie\ORM\Loaders\Loader\Proxy\Caching
+     */
+    protected $actionsAfter;
+
+    /**
+     * @var
+     */
+    protected $action;
+
+    /**
      * Session constructor.
      * @param \PHPixie\HTTP\Context\Session\SAPI $session
      * @param \PHPixie\ORM\Repositories          $repositories
@@ -29,32 +44,90 @@ class Environment implements \Meling\Cart\Providers\Environment
      */
     public function action()
     {
-        if($actionId = $this->session->get('actionId')) {
-            return $this->repositories->get('action')->query()->in($actionId)->findOne();
+        if($this->action === null) {
+            if($actionId = $this->session->get('actionId')) {
+                $this->action = $this->repositories->get('action')->query()->in($actionId)->findOne();
+            }
         }
 
-        return null;
+        return $this->action;
     }
 
     /**
      * @param \DateTime $dateActual
      * @param \DateTime $dateBirthday
      * @param \DateTime $dateMarriage
-     * @return \Meling\Cart\Actions\Action[]
+     * @return \PHPixie\ORM\Loaders\Loader\Proxy\Caching
      */
     public function actions($dateActual = null, $dateBirthday = null, $dateMarriage = null)
     {
-        // TODO: Implement actions() method.
+        if($this->actions === null) {
+            $this->actions = $this->getActions(false, $dateActual, $dateBirthday, $dateMarriage);
+        }
+
+        return $this->actions;
     }
 
     /**
      * @param \DateTime $dateActual
-     * @return \Meling\Cart\Actions\Action[]
+     * @return \PHPixie\ORM\Loaders\Loader\Proxy\Caching
      */
     public function actionsAfter($dateActual = null)
     {
-        // TODO: Implement actionsAfter() method.
+        if($this->actionsAfter === null) {
+            $this->actionsAfter = $this->getActions(true, $dateActual);
+        }
+
+        return $this->actionsAfter;
     }
 
+    /**
+     * @param bool      $after
+     * @param \DateTime $dateActual
+     * @param \DateTime $dateBirthday
+     * @param \DateTime $dateMarriage
+     * @return \PHPixie\ORM\Loaders\Loader\Proxy\Caching
+     */
+    protected function getActions($after = false, $dateActual = null, $dateBirthday = null, $dateMarriage = null)
+    {
+        /**
+         * @var \PHPixie\ORM\Wrappers\Type\Database\Query $query
+         */
+        $query = $this->repositories->get('action')->query();
+        $query->where('publish', 1);
+        $query->where('after', (int)$after);
+        // Диапазон дат
+        if($dateActual instanceof \DateTime) {
+            $week       = $dateActual->format('N');
+            $dateActual = $dateActual->format('Y-m-d H:i:s');
+        } else {
+            $week       = date('N');
+            $dateActual = new \PHPixie\Database\Type\SQL\Expression('NOW()');
+        }
+        if($dateBirthday === null) {
+            $query->notRelatedTo('actionType', 53006);
+        }
+        if($dateMarriage === null) {
+            $query->notRelatedTo('actionType', 53007);
+        }
+
+        $query->startAndGroup();
+        $query->orWhere('week', null);
+        $query->orWhere('week', 'like', $week);
+        $query->endGroup();
+
+        $query->startAndGroup();
+        $query->where('date_start', '<=', $dateActual);
+        $query->where('date_end', '>=', $dateActual);
+        $query->orWhere(
+            function (\PHPixie\ORM\Conditions\Builder\Container $query) {
+                $query->orWhere('date_end', '0000-00-00 00:00:00');
+                $query->orWhere('date_end', null);
+            }
+        );
+        $query->endGroup();
+
+        return $query->find();
+    }
 
 }

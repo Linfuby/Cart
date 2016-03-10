@@ -6,7 +6,7 @@ namespace Meling\Cart\Actions\Types;
  * Class Type53017
  * @package Meling\Cart\Actions\Types
  */
-class Type53017 extends Extension implements Type
+class Type53017 extends Type
 {
     /**
      * @param \Meling\Cart\Products\Product $a
@@ -117,4 +117,5 @@ class Type53017 extends Extension implements Type
 
         return $this->totalDiscount;
     }
+
 }

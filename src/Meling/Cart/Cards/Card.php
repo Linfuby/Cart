@@ -5,7 +5,7 @@ class Card
 {
     protected $id;
 
-    protected $number;
+    protected $name;
 
     protected $discount;
 
@@ -14,14 +14,14 @@ class Card
     /**
      * Card constructor.
      * @param string $id
-     * @param string $number
+     * @param string $name
      * @param int    $discount
      * @param int    $rewards
      */
-    public function __construct($id = null, $number = null, $discount = null, $rewards = null)
+    public function __construct($id = null, $name = null, $discount = null, $rewards = null)
     {
         $this->id       = $id;
-        $this->number   = $number;
+        $this->name   = $name;
         $this->discount = (int)$discount;
         $this->rewards  = (int)$rewards;
     }
@@ -36,13 +36,14 @@ class Card
         return $this->id;
     }
 
-    public function number()
+    public function name()
     {
-        return $this->number;
+        return $this->name;
     }
 
     public function rewards()
     {
         return $this->rewards;
     }
+
 }

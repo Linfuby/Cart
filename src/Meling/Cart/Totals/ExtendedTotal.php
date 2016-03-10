@@ -30,4 +30,5 @@ abstract class ExtendedTotal
     public abstract function name();
 
     public abstract function total();
+
 }

@@ -57,19 +57,19 @@ class Builder
     }
 
     /**
+     * @return Certificates
+     */
+    public function certificates()
+    {
+        return $this->instance('certificates');
+    }
+
+    /**
      * @return Providers\Environment
      */
     public function environment()
     {
         return $this->environment;
-    }
-
-    /**
-     * @return Providers\Objects
-     */
-    public function objects()
-    {
-        return $this->objects;
     }
 
     /**
@@ -106,9 +106,14 @@ class Builder
         return new Cards($this->subject());
     }
 
+    protected function buildCertificates()
+    {
+        return new Certificates($this->subject(), $this->subject()->certificates());
+    }
+
     protected function buildProducts()
     {
-        return new Products($this);
+        return new Products($this->subject(), $this->subject()->products());
     }
 
     protected function buildTotals()
@@ -125,4 +130,5 @@ class Builder
 
         return $this->instances[$name];
     }
+
 }

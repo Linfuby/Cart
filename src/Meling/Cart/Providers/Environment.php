@@ -12,13 +12,13 @@ interface Environment
      * @param \DateTime $dateActual
      * @param \DateTime $dateBirthday
      * @param \DateTime $dateMarriage
-     * @return \Meling\Cart\Actions\Action[]
+     * @return \PHPixie\ORM\Wrappers\Type\Database\Entity[]
      */
     public function actions($dateActual = null, $dateBirthday = null, $dateMarriage = null);
 
     /**
      * @param \DateTime $dateActual
-     * @return \Meling\Cart\Actions\Action[]
+     * @return \PHPixie\ORM\Wrappers\Type\Database\Entity[]
      */
     public function actionsAfter($dateActual = null);
 

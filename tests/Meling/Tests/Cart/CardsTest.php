@@ -10,8 +10,7 @@ class CardsTest extends \PHPUnit_Framework_TestCase
 
     public function setUp()
     {
-        $cart        = \Meling\Tests\CartTest::getCustomerOptionsCart();
-        $this->cards = $cart->cards();
+        $this->cards = new \Meling\Cart\Cards(\Meling\Tests\Cart\Providers\Subjects\CustomerTest::getSubject());
     }
 
     public function testAttributeSubject()
@@ -21,7 +20,7 @@ class CardsTest extends \PHPUnit_Framework_TestCase
 
     public function testMethodGet()
     {
-        $card = new \Meling\Cart\Cards\Card(2, 2, 15, 1500);
+        $card = new \Meling\Cart\Cards\Card(95361854001, '13373048', 15, 442);
         $this->assertEquals($card, $this->cards->get());
     }
 
@@ -34,8 +33,8 @@ class CardsTest extends \PHPUnit_Framework_TestCase
 
     public function testMethodGetId()
     {
-        $card = new \Meling\Cart\Cards\Card(1, 1, 5, 500);
-        $this->assertEquals($card, $this->cards->get(1));
+        $card = new \Meling\Cart\Cards\Card(-42148309, '180199', 8, 0);
+        $this->assertEquals($card, $this->cards->get(-42148309));
     }
 
 }

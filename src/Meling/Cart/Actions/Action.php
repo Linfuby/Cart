@@ -30,15 +30,15 @@ class Action
      */
     public function __construct($totals, $action = null)
     {
-        $this->totals   = $totals;
-        $this->action   = $action;
+        $this->totals = $totals;
+        $this->action = $action;
     }
 
     public function type()
     {
         if($this->type === null) {
             if($this->action) {
-                $class = '\Meling\Cart\Actions\Types\Type' . $this->action->actionTypeId;
+                $class = '\Meling\Cart\Actions\Types\Type' . $this->action->getField('actionTypeId');
                 if(class_exists($class)) {
                     $this->type = new $class($this->totals, $this->action);
                 } else {
@@ -51,4 +51,5 @@ class Action
 
         return $this->type;
     }
+
 }

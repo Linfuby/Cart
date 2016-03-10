@@ -1,29 +1,39 @@
 <?php
 namespace Meling\Cart\Providers;
 
-interface Objects
+abstract class Objects
 {
+    protected $provider;
+
     /**
-     * @param \PHPixie\ORM\Wrappers\Type\Database\Entity $product
-     * @param array                                      $data
+     * Objects constructor.
+     * @param $provider
+     */
+    public function __construct($provider)
+    {
+        $this->provider = $provider;
+    }
+
+    /**
+     * @param array $data
      * @return int
      */
-    public function add($product, $data = array());
+    public abstract function add($data = array());
 
     /**
-     * @return $this
+     * @return array
      */
-    public function clear();
+    public abstract function clear();
 
     /**
-     * @return \Meling\Cart\Products\Product[]
+     * @return array
      */
-    public function objects();
+    public abstract function objects();
 
     /**
      * @param int $id
-     * @return $this
+     * @return array
      */
-    public function remove($id);
+    public abstract function remove($id);
 
 }

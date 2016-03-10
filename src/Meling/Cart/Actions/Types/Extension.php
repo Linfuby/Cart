@@ -1,6 +1,11 @@
 <?php
 namespace Meling\Cart\Actions\Types;
 
+/**
+ * Class Extension
+ * @deprecated
+ * @package Meling\Cart\Actions\Types
+ */
 abstract class Extension
 {
     /**

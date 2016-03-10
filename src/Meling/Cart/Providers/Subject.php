@@ -1,26 +1,66 @@
 <?php
 namespace Meling\Cart\Providers;
 
-interface Subject
+abstract class Subject
 {
     /**
-     * @return mixed
+     * @var mixed
      */
-    public function cards();
+    protected $subject;
+
+    /**
+     * @var mixed
+     */
+    protected $repositories;
+
+    /**
+     * @var Objects
+     */
+    protected $products;
+
+    /**
+     * @var Objects
+     */
+    protected $certificates;
+
+    /**
+     * Subject constructor.
+     * @param mixed $subject
+     * @param mixed $repositories
+     */
+    public function __construct($subject, $repositories)
+    {
+        $this->subject      = $subject;
+        $this->repositories = $repositories;
+    }
+
+    /**
+     * @return array
+     */
+    public abstract function cards();
+
+    /**
+     * @return Objects
+     */
+    public abstract function certificates();
 
     /**
      * @return \DateTime
      */
-    public function dateActual();
+    public abstract function dateActual();
 
     /**
      * @return \DateTime
      */
-    public function dateBirthday();
+    public abstract function dateBirthday();
 
     /**
      * @return \DateTime
      */
-    public function dateMarriage();
+    public abstract function dateMarriage();
 
+    /**
+     * @return Objects
+     */
+    public abstract function products();
 }

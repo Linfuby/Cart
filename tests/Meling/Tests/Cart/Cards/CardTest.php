@@ -17,8 +17,7 @@ class CardTest extends \PHPUnit_Framework_TestCase
 
     public function setUp()
     {
-        $cart       = \Meling\Tests\CartTest::getCustomerOptionsCart();
-        $this->card = $cart->cards()->get();
+        $this->card = new \Meling\Cart\Cards\Card(2, '20', 15, 1500);
     }
 
     public function testAttributeDiscount()
@@ -31,9 +30,9 @@ class CardTest extends \PHPUnit_Framework_TestCase
         $this->assertAttributeEquals(2, 'id', $this->card);
     }
 
-    public function testAttributeNumber()
+    public function testAttributeName()
     {
-        $this->assertAttributeEquals('20', 'number', $this->card);
+        $this->assertAttributeEquals('20', 'name', $this->card);
     }
 
     public function testAttributeRewards()
@@ -51,13 +50,14 @@ class CardTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals(2, $this->card->id());
     }
 
-    public function testMethodNumber()
+    public function testMethodName()
     {
-        $this->assertEquals('20', $this->card->number());
+        $this->assertEquals('20', $this->card->name());
     }
 
     public function testMethodRewards()
     {
         $this->assertEquals(1500, $this->card->rewards());
     }
+
 }

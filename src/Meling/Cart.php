@@ -40,6 +40,14 @@ class Cart
     }
 
     /**
+     * @return Cart\Certificates
+     */
+    public function certificates()
+    {
+        return $this->builder->certificates();
+    }
+
+    /**
      * @return Cart\Products
      */
     public function products()

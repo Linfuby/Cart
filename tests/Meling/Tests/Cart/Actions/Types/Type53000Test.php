@@ -8,10 +8,22 @@ class Type53000Test extends \PHPUnit_Framework_TestCase
      */
     protected $type;
 
+    /**
+     * @var \Meling\Cart\Totals
+     */
+    protected $totals;
+
     public function setUp()
     {
-        $cart       = \Meling\Tests\CartTest::getCustomerOptionsCart(array());
-        $this->type = $cart->actions()->get()->type();
+
+        $products     = new \Meling\Cart\Products(
+            \Meling\Tests\Cart\Providers\Subjects\CustomerTest::getSubject(),
+            \Meling\Tests\Cart\Providers\Objects\ObjectTest::getObjectRepository(
+                'cart', 'customerId', \Meling\Tests\Cart\Providers\Subjects\CustomerTest::getCustomer()->id()
+            )
+        );
+        $this->totals = new \Meling\Cart\Totals($products);
+        $this->type   = new \Meling\Cart\Actions\Types\Type53000($this->totals, $action = null);
     }
 
     public function testAttributeTotals()
@@ -19,10 +31,16 @@ class Type53000Test extends \PHPUnit_Framework_TestCase
         $this->assertAttributeInstanceOf('\Meling\Cart\Totals', 'totals', $this->type);
     }
 
+    public function testMethodName()
+    {
+        $orm        = \Meling\Tests\CartTest::getORM();
+        $action     = $orm->query('action')->findOne();
+        $this->type = new \Meling\Cart\Actions\Types\Type53000($this->totals, $action);
+        $this->assertEquals($action->getField('name'), $this->type->name());
+    }
+
     public function testMethodNameEmpty()
     {
-        $cart       = \Meling\Tests\CartTest::getCustomerOptionsCart();
-        $this->type = $cart->actions()->get()->type();
         $this->assertEquals('Без Акции', $this->type->name());
     }
 

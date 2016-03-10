@@ -23,6 +23,16 @@ class Actions
     protected $totals;
 
     /**
+     * @var Actions\Action[]
+     */
+    protected $actions;
+
+    /**
+     * @var Actions\Action[]
+     */
+    protected $actionsAfter;
+
+    /**
      * Products constructor.
      * @param Providers\Environment $environment
      * @param Providers\Subject     $subject
@@ -35,24 +45,86 @@ class Actions
         $this->totals      = $totals;
     }
 
-    public function asArray()
+    /**
+     * @return Actions\Action[]
+     */
+    public function asAfter()
     {
-        return $this->environment->actions(
-            $this->subject->dateActual(), $this->subject->dateBirthday(), $this->subject->dateMarriage()
-        );
+        $this->requireActionsAfter();
+
+        return $this->actionsAfter;
     }
 
-    public function get()
+    /**
+     * @return Actions\Action[]
+     */
+    public function asArray()
     {
-        try {
-            if($action = $this->environment->action()
-            ) {
-                return new Actions\Action($this->totals, $action);
+        $this->requireActions();
+
+        return $this->actions;
+    }
+
+    /**
+     * @param string $id
+     * @return Actions\Action
+     */
+    public function get($id = null)
+    {
+        $this->requireActions();
+        if($id !== null) {
+            if(array_key_exists($id, $this->actions)) {
+                return $this->actions[$id];
             }
-        } catch(\Exception $e) {
-            return new Actions\Action($this->totals);
+        } elseif($action = $this->environment->action()) {
+            return new Actions\Action($this->totals, $action);
         }
 
         return new Actions\Action($this->totals);
     }
+
+    /**
+     * @param string $id
+     * @return Actions\Action
+     */
+    public function getAfter($id)
+    {
+        $this->requireActionsAfter();
+        if($id !== null) {
+            if(array_key_exists($id, $this->actionsAfter)) {
+                return $this->actionsAfter[$id];
+            }
+        }
+
+        return new Actions\Action($this->totals);
+    }
+
+    protected function requireActions()
+    {
+        if($this->actions !== null) {
+            return;
+        }
+        $actions = array();
+        foreach($this->environment->actions(
+            $this->subject->dateActual(), $this->subject->dateBirthday(), $this->subject->dateMarriage()
+        ) as $action) {
+            $actions[$action->id()] = new Actions\Action($this->totals, $action);
+        }
+        $this->actions = $actions;
+        unset($actions);
+    }
+
+    protected function requireActionsAfter()
+    {
+        if($this->actionsAfter !== null) {
+            return;
+        }
+        $actionsAfter = array();
+        foreach($this->environment->actionsAfter($this->subject->dateActual()) as $action) {
+            $actionsAfter[$action->id()] = new Actions\Action($this->totals, $action);
+        }
+        $this->actionsAfter = $actionsAfter;
+        unset($actionsAfter);
+    }
+
 }

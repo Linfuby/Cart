@@ -6,14 +6,13 @@ namespace Meling\Cart\Actions\Types;
  * Class Type53008
  * @package Meling\Cart\Actions\Types
  */
-class Type53008 extends Extension implements Type
+class Type53008 extends Type
 {
     /**
      * @return int
      */
     public function totalDiscount()
     {
-        if($this->totalDiscount === null) {
             $this->totalDiscount = 0;
             $totalAmount         = $this->totalAmount();
             // Для каждого товара
@@ -23,9 +22,6 @@ class Type53008 extends Extension implements Type
                 }
                 $this->updateBonuses($action->discount);
             }
-        }
-
-        return $this->totalDiscount;
     }
 
 }
