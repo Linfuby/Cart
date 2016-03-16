@@ -8,70 +8,73 @@ namespace Meling;
 class Cart
 {
     /**
-     * @type Cart\Builder
+     * @type Cart\Orders
      */
-    protected $builder;
+    protected $orders;
 
     /**
      * Cart constructor.
-     * @param \Meling\Cart\Providers\Subject     $subject
-     * @param \Meling\Cart\Providers\Objects     $objects
-     * @param \Meling\Cart\Providers\Environment $environment
+     * @param Cart\Context $context
      */
-    public function __construct($subject, $objects, $environment)
+    public function __construct($context)
     {
-        $this->builder = $this->buildBuilder($subject, $objects, $environment);
+        $this->orders = new Cart\Orders($context);
     }
 
     /**
-     * @return Cart\Actions
+     * @return Cart\Orders\Order\Actions
      */
     public function actions()
     {
-        return $this->builder->actions();
+        return $this->orders()->get()->products()->actions();
     }
 
     /**
-     * @return Cart\Cards
+     * @return Cart\Orders\Order\Actions\Cards
      */
     public function cards()
     {
-        return $this->builder->cards();
+        return $this->orders()->get()->products()->actions()->cards();
     }
 
     /**
-     * @return Cart\Certificates
+     * @return Cart\Orders\Order\Certificates
      */
     public function certificates()
     {
-        return $this->builder->certificates();
+        return $this->orders()->get()->certificates();
     }
 
     /**
-     * @return Cart\Products
+     * @return Cart\Orders
+     */
+    public function orders()
+    {
+        return $this->orders;
+    }
+
+    /**
+     * @return Cart\Orders\Order\Products
      */
     public function products()
     {
-        return $this->builder->products();
+        return $this->orders()->get()->products();
     }
 
     /**
-     * @return Cart\Totals
+     * @return Cart\Orders\Order\Shops
+     */
+    public function shops()
+    {
+        return $this->products()->shops();
+    }
+
+    /**
+     * @return Cart\Orders\Order\Totals
      */
     public function totals()
     {
-        return $this->builder->totals();
-    }
-
-    /**
-     * @param \Meling\Cart\Providers\Subject     $subject
-     * @param \Meling\Cart\Providers\Objects     $objects
-     * @param \Meling\Cart\Providers\Environment $environment
-     * @return Cart\Builder
-     */
-    private function buildBuilder($subject, $objects, $environment)
-    {
-        return new Cart\Builder($subject, $objects, $environment);
+        return $this->orders()->get()->products()->totals();
     }
 
 }

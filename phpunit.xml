@@ -1,3 +1,4 @@
+<!--suppress ALL -->
 <phpunit bootstrap="./tests/phpunit.php">
     <testsuites>
         <testsuite name="unit">

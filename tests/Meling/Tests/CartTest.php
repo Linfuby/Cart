@@ -2,16 +2,11 @@
 namespace Meling\Tests;
 
 /**
- * Class CartOptionsTest
+ * Class CartTest
  * @package Meling\Tests
  */
 class CartTest extends \PHPUnit_Framework_TestCase
 {
-    /**
-     * @var \PHPixie\ORM
-     */
-    public static $orm;
-
     /**
      * @var \Meling\Cart
      */
@@ -19,7 +14,8 @@ class CartTest extends \PHPUnit_Framework_TestCase
 
     public static function getORM()
     {
-        if(\Meling\Tests\CartTest::$orm === null) {
+        static $orm;
+        if($orm === null) {
             $slice    = new \PHPixie\Slice();
             $database = new \PHPixie\Database(
                 $slice->arrayData(
@@ -35,21 +31,66 @@ class CartTest extends \PHPUnit_Framework_TestCase
                 )
             );
 
-            \Meling\Tests\CartTest::$orm = new \PHPixie\ORM(
+            $orm = new \PHPixie\ORM(
                 $database, $slice->arrayData(
                 array(
                     'relationships' => array(
-                        'ActionType'     => array(
+                        'ActionType'               => array(
                             'type'  => 'oneToMany',
                             'owner' => 'actionType',
                             'items' => 'action',
                         ),
-                        'CustomerCards'  => array(
+                        'OptionActionProducts'     => array(
+                            'type'  => 'oneToMany',
+                            'owner' => 'option',
+                            'items' => 'actionProduct',
+                        ),
+                        'ActionActionProducts'     => array(
+                            'type'  => 'oneToMany',
+                            'owner' => 'action',
+                            'items' => 'actionProduct',
+                        ),
+                        'CartOption'               => array(
+                            'type'  => 'oneToMany',
+                            'owner' => 'option',
+                            'items' => 'cart',
+                        ),
+                        'CartOptionRests'          => array(
+                            'type'  => 'oneToMany',
+                            'owner' => 'option',
+                            'items' => 'shopRest',
+                        ),
+                        'ShopRests'                => array(
+                            'type'  => 'oneToMany',
+                            'owner' => 'shop',
+                            'items' => 'shopRest',
+                        ),
+                        'CustomerCards'            => array(
                             'type'  => 'oneToMany',
                             'owner' => 'customer',
                             'items' => 'customerCard',
                         ),
-                        'CustomerOrders' => array(
+                        'CustomerCarts'            => array(
+                            'type'  => 'oneToMany',
+                            'owner' => 'customer',
+                            'items' => 'cart',
+                        ),
+                        'CustomerCartCertificates' => array(
+                            'type'  => 'oneToMany',
+                            'owner' => 'customer',
+                            'items' => 'cartCertificate',
+                        ),
+                        'OrderProducts'            => array(
+                            'type'  => 'oneToMany',
+                            'owner' => 'order',
+                            'items' => 'orderProduct',
+                        ),
+                        'OrderCertificates'        => array(
+                            'type'  => 'oneToMany',
+                            'owner' => 'order',
+                            'items' => 'orderCertificate',
+                        ),
+                        'CustomerOrders'           => array(
                             'type'  => 'oneToMany',
                             'owner' => 'customer',
                             'items' => 'order',
@@ -60,52 +101,61 @@ class CartTest extends \PHPUnit_Framework_TestCase
             );
         }
 
-        return \Meling\Tests\CartTest::$orm;
+        return $orm;
     }
 
+    /**
+     * Инициализация корзины. Конструктор принимает провайдера
+     */
     public function setUp()
     {
-        self::$orm   = $this->getORM();
-        $customer    = \Meling\Tests\Cart\Providers\Subjects\CustomerTest::getCustomer();
-        $subject     = \Meling\Tests\Cart\Providers\Subjects\CustomerTest::getSubject();
-        $objects     = \Meling\Tests\Cart\Providers\Objects\ObjectTest::getObjectRepository(
-            'cart', 'customerId', $customer->id()
-        );
-        $environment = new \Meling\Cart\Providers\Environments\Environment(
-            \Meling\Tests\Cart\Providers\Subjects\SessionTest::getSession(),
-            \Meling\Tests\CartTest::$orm->repositories()
-        );
-        $this->cart  = new \Meling\Cart($subject, $objects, $environment);
+        $context    = \Meling\Tests\Cart\ContextTest::getContextCustomer();
+        $this->cart = new \Meling\Cart($context);
     }
 
     public function tearDown()
     {
-        \Meling\Tests\CartTest::$orm->builder()->database()->connection('default')->disconnect();
+        \Meling\Tests\CartTest::getORM()->builder()->database()->connection('default')->disconnect();
     }
 
-    public function testAttributeBuilder()
+    public function testAttributeOrders()
     {
-        $this->assertAttributeInstanceOf('\Meling\Cart\Builder', 'builder', $this->cart);
+        $this->assertAttributeInstanceOf('\Meling\Cart\Orders', 'orders', $this->cart);
     }
 
     public function testMethodActions()
     {
-        $this->assertInstanceOf('\Meling\Cart\Actions', $this->cart->actions());
+        $this->assertInstanceOf('\Meling\Cart\Orders\Order\Actions', $this->cart->actions());
     }
 
     public function testMethodCards()
     {
-        $this->assertInstanceOf('\Meling\Cart\Cards', $this->cart->cards());
+        $this->assertInstanceOf('\Meling\Cart\Orders\Order\Actions\Cards', $this->cart->cards());
+    }
+
+    public function testMethodCertificates()
+    {
+        $this->assertInstanceOf('\Meling\Cart\Orders\Order\Certificates', $this->cart->certificates());
+    }
+
+    public function testMethodOrders()
+    {
+        $this->assertInstanceOf('\Meling\Cart\Orders', $this->cart->orders());
     }
 
     public function testMethodProducts()
     {
-        $this->assertInstanceOf('\Meling\Cart\Products', $this->cart->products());
+        $this->assertInstanceOf('\Meling\Cart\Orders\Order\Products', $this->cart->products());
+    }
+
+    public function testMethodShops()
+    {
+        $this->assertInstanceOf('\Meling\Cart\Orders\Order\Shops', $this->cart->shops());
     }
 
     public function testMethodTotals()
     {
-        $this->assertInstanceOf('\Meling\Cart\Totals', $this->cart->totals());
+        $this->assertInstanceOf('\Meling\Cart\Orders\Order\Totals', $this->cart->totals());
     }
 
 }
