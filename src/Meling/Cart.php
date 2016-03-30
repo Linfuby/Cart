@@ -8,73 +8,48 @@ namespace Meling;
 class Cart
 {
     /**
-     * @type Cart\Orders
+     * @var array
      */
-    protected $orders;
+    protected $instances = array();
 
     /**
-     * Cart constructor.
-     * @param Cart\Context $context
+     * @var Cart\Customer
      */
-    public function __construct($context)
+    private $customer;
+
+    /**
+     * @var Cart\Provider
+     */
+    private $provider;
+
+    /**
+     * @param Cart\Customer $customer
+     * @param Cart\Provider $provider
+     */
+    public function __construct(Cart\Customer $customer, Cart\Provider $provider)
     {
-        $this->orders = new Cart\Orders($context);
+        $this->customer = $customer;
+        $this->provider = $provider;
     }
 
-    /**
-     * @return Cart\Orders\Order\Actions
-     */
-    public function actions()
-    {
-        return $this->orders()->get()->products()->actions();
-    }
-
-    /**
-     * @return Cart\Orders\Order\Actions\Cards
-     */
-    public function cards()
-    {
-        return $this->orders()->get()->products()->actions()->cards();
-    }
-
-    /**
-     * @return Cart\Orders\Order\Certificates
-     */
-    public function certificates()
-    {
-        return $this->orders()->get()->certificates();
-    }
-
-    /**
-     * @return Cart\Orders
-     */
     public function orders()
     {
-        return $this->orders;
+        return $this->instance('orders');
     }
 
-    /**
-     * @return Cart\Orders\Order\Products
-     */
-    public function products()
+    protected function buildOrders()
     {
-        return $this->orders()->get()->products();
+        return new Cart\Orders($this->customer, $this->provider);
     }
 
-    /**
-     * @return Cart\Orders\Order\Shops
-     */
-    public function shops()
+    protected function instance($name)
     {
-        return $this->products()->shops();
-    }
+        if(!array_key_exists($name, $this->instances)) {
+            $method                 = 'build' . ucfirst($name);
+            $this->instances[$name] = $this->$method();
+        }
 
-    /**
-     * @return Cart\Orders\Order\Totals
-     */
-    public function totals()
-    {
-        return $this->orders()->get()->products()->totals();
+        return $this->instances[$name];
     }
 
 }

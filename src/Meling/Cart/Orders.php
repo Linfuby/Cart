@@ -4,32 +4,30 @@ namespace Meling\Cart;
 class Orders
 {
     /**
-     * @var Context
+     * @var Customer
      */
-    protected $context;
+    private $customer;
 
     /**
-     * @var Orders\Order[]
+     * @var \Meling\Cart\Orders\Order[]
      */
-    protected $orders;
+    private $orders;
 
     /**
-     * @var Orders\Order
+     * @var Provider
      */
-    protected $order;
+    private $provider;
 
     /**
-     * Orders constructor.
-     * @param Context $context
+     * @param Customer $customer
+     * @param Provider $provider
      */
-    public function __construct($context)
+    public function __construct(Customer $customer, Provider $provider)
     {
-        $this->context = $context;
+        $this->customer = $customer;
+        $this->provider = $provider;
     }
 
-    /**
-     * @return Orders\Order[]
-     */
     public function asArray()
     {
         $this->requireOrders();
@@ -37,82 +35,78 @@ class Orders
         return $this->orders;
     }
 
-    /**
-     * @param null $id
-     * @return Orders\Order
-     * @throws \Exception
-     */
-    public function get($id = null)
+    public function defaultOrder()
     {
-        if($id === null) {
-            if($this->order === null) {
-                $this->order = $this->buildOrder(
-                    0, $this->buildProducts($this->context->products()),
-                    $this->buildCertificates($this->context->certificates())
-                );
-            }
+        return $this->buildOrder();
+    }
 
-            return $this->order;
-        }
+    public function get($id)
+    {
         $this->requireOrders();
         if(array_key_exists($id, $this->orders)) {
             return $this->orders[$id];
         }
-
         throw new \Exception('Order ' . $id . ' does not exist');
     }
 
-    protected function buildCertificates(array $certificates = array())
+    private function buildCustomProvider(array $options = array(), array $certificates = array())
     {
-        return new Orders\Order\Certificates($this->context->provider(), $certificates);
+        return new \Meling\Cart\Provider\Custom($options, $certificates);
     }
 
-    protected function buildOrder($id, Orders\Order\Products $products, Orders\Order\Certificates $certificates)
+    private function buildOrder($id = null, $customer = null, $provider = null)
     {
-        return new \Meling\Cart\Orders\Order($id, $products, $certificates);
+        if($customer === null) {
+            $customer = $this->customer;
+        }
+        if($provider === null) {
+            $provider = $this->provider;
+        }
+
+        return new Orders\Order($id, $customer, $this->buildProducts($provider));
     }
 
-    protected function buildProducts(array $products = array())
+    private function buildProducts($provider)
     {
-        return new Orders\Order\Products($this->context->provider(), $products);
+        return new \Meling\Cart\Products($provider);
     }
 
-    protected function requireOrders()
+    private function requireOrders()
     {
         if($this->orders !== null) {
             return;
         }
-        $productsAll     = array();
-        $certificatesAll = array();
-        foreach($this->context->products() as $product) {
-            if($product->shopTariffId) {
-                $productsAll[$product->shopTariffId . $product->addressId][] = $product;
-            } elseif($product->shopId) {
-                $productsAll[$product->shopId][] = $product;
+        $orders            = array();
+        $objectsShop       = array();
+        $objectsDeliveries = array();
+        foreach($this->provider->objects()->asArray() as $object) {
+            if($object->shopId()) {
+                if($object->shopTariffId()) {
+                    $objectsDeliveries[$object->deliveryId() . $object->shopTariffId() . $object->addressId()] = array(
+                        'options'      => array(),
+                        'certificates' => array(),
+                    );
+                    if($object instanceof \Meling\Cart\Objects\Option) {
+                        $objectsDeliveries[$object->deliveryId() . $object->shopTariffId() . $object->addressId()]['options'][] = $object;
+                    } elseif($object instanceof \Meling\Cart\Objects\Certificate) {
+                        $objectsDeliveries[$object->deliveryId() . $object->shopTariffId() . $object->addressId()]['certificates'][] = $object;
+                    }
+                } else {
+                    $objectsShop[$object->shopId()] = array(
+                        'options'      => array(),
+                        'certificates' => array(),
+                    );
+                    if($object instanceof \Meling\Cart\Objects\Option) {
+                        $objectsShop[$object->shopId()]['options'][] = $object;
+                    } elseif($object instanceof \Meling\Cart\Objects\Certificate) {
+                        $objectsShop[$object->shopId()]['certificates'][] = $object;
+                    }
+                }
             }
         }
-        foreach($this->context->certificates() as $certificate) {
-            if($certificate->shopTariffId) {
-                $certificatesAll[$certificate->shopTariffId . $certificate->addressId][] = $certificate;
-            } elseif($certificate->shopId) {
-                $certificatesAll[$certificate->shopId][] = $certificate;
-            }
-        }
-        $orders = array();
-        foreach($productsAll as $key => $products) {
-            $certificates = array();
-            if(!empty($certificatesAll[$key])) {
-                $certificates = $certificatesAll[$key];
-                unset($certificatesAll[$key]);
-            }
-            $products     = $this->buildProducts($products);
-            $certificates = $this->buildCertificates($certificates);
-            $orders[]     = $this->buildOrder(count($orders), $products, $certificates);
-        }
-        foreach($certificatesAll as $certificates) {
-            $products     = $this->buildProducts(array());
-            $certificates = $this->buildCertificates($certificates);
-            $orders[]     = $this->buildOrder(count($orders), $products, $certificates);
+        foreach($objectsShop as $objects) {
+            $provider = $this->buildCustomProvider($objects['options'], $objects['certificates']);
+            $orders[] = $this->buildOrder(null, null, $provider);
         }
         $this->orders = $orders;
     }

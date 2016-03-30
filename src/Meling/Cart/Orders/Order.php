@@ -4,52 +4,49 @@ namespace Meling\Cart\Orders;
 class Order
 {
     /**
-     * @var string
+     * @var \Meling\Cart\Customer
+     */
+    protected $customer;
+
+    /**
+     * @var mixed
      */
     protected $id;
 
     /**
-     * @var Order\Products
+     * @var \Meling\Cart\Products
      */
     protected $products;
 
     /**
-     * @var Order\Certificates
+     * @param mixed                 $id
+     * @param \Meling\Cart\Customer $customer
+     * @param \Meling\Cart\Products $products
      */
-    protected $certificates;
-
-    /**
-     * Order constructor.
-     * @param string             $id
-     * @param Order\Products     $products
-     * @param Order\Certificates $certificates
-     */
-    public function __construct($id, Order\Products $products, Order\Certificates $certificates)
+    public function __construct($id, $customer, $products)
     {
-        $this->id           = $id;
-        $this->products     = $products;
-        $this->certificates = $certificates;
+
+        $this->id       = $id;
+        $this->customer = $customer;
+        $this->products = $products;
     }
 
     /**
-     * @return Order\Certificates
+     * @param \Meling\Cart\Objects\Certificate $object
+     * @return mixed
      */
-    public function certificates()
+    public function addCertificate(\Meling\Cart\Objects\Certificate $object)
     {
-        return $this->certificates;
-    }
-
-    public function id()
-    {
-        return $this->id;
+        return $this->products->addCertificate($object);
     }
 
     /**
-     * @return Order\Products
+     * @param \Meling\Cart\Objects\Option $object
+     * @return mixed
      */
-    public function products()
+    public function addOption(\Meling\Cart\Objects\Option $object)
     {
-        return $this->products;
+        return $this->products->addOption($object);
     }
 
 }
