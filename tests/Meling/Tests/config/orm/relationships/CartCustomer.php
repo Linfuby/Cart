@@ -2,5 +2,5 @@
 return array(
     'type'  => 'oneToMany',
     'owner' => 'customer',
-    'items' => 'cart',
+    'items' => 'cartProduct',
 );

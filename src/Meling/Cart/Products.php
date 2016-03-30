@@ -46,7 +46,7 @@ class Products
         return $this->products;
     }
 
-    public function requireProducts()
+    protected function requireProducts()
     {
         if($this->products !== null) {
             return;

@@ -16,16 +16,16 @@ class Objects
     /**
      * @var array
      */
-    protected $products;
+    protected $options;
 
     /**
      * Objects constructor.
-     * @param array $products
+     * @param array $options
      * @param array $certificates
      */
-    public function __construct(array $products = array(), array $certificates = array())
+    public function __construct(array $options = array(), array $certificates = array())
     {
-        $this->products     = $products;
+        $this->options      = $options;
         $this->certificates = $certificates;
     }
 
@@ -52,14 +52,15 @@ class Objects
     protected function buildCertificate(
         $id,
         $certificate,
+        $image,
         $price,
         $quantity = 1,
         $shopId = null,
-        $deliveryId = null,
         $shopTariffId = null,
-        $addressId = null)
+        $addressId = null,
+        $pvz = null)
     {
-        return new \Meling\Cart\Objects\Certificate($id, $certificate, $price, $quantity, $shopId, $deliveryId, $shopTariffId, $addressId);
+        return new \Meling\Cart\Objects\Certificate($id, $certificate, $image, $price, $quantity, $shopId, $shopTariffId, $addressId, $pvz);
     }
 
     protected function buildOption(
@@ -70,9 +71,10 @@ class Objects
         $shopId = null,
         $deliveryId = null,
         $shopTariffId = null,
-        $addressId = null)
+        $addressId = null,
+        $pvz = null)
     {
-        return new \Meling\Cart\Objects\Option($id, $option, $price, $quantity, $shopId, $deliveryId, $shopTariffId, $addressId);
+        return new \Meling\Cart\Objects\Option($id, $option, $price, $quantity, $shopId, $deliveryId, $shopTariffId, $addressId, $pvz);
     }
 
     protected function requireObjects()
@@ -81,11 +83,11 @@ class Objects
             return;
         }
         $objects = array();
-        foreach($this->products as $product) {
-            $objects[] = $this->buildOption($product->id, $product->option, $product->price, $product->quantity, $product->shopId, $product->deliveryId, $product->shopTariffId, $product->addressId);
+        foreach($this->options as $option) {
+            $objects[] = $this->buildOption($option->id, $option->option, $option->price, $option->quantity, $option->shopId, $option->shopTariffId, $option->addressId, $option->pvz);
         }
         foreach($this->certificates as $certificate) {
-            $objects[] = $this->buildCertificate($certificate->id, $certificate->certificate, $certificate->price, $certificate->quantity, $certificate->shopId, $certificate->deliveryId, $certificate->shopTariffId, $certificate->addressId);
+            $objects[] = $this->buildCertificate($certificate->id, $certificate->certificate, $certificate->image, $certificate->price, $certificate->quantity, $certificate->shopId, $certificate->shopTariffId, $certificate->addressId, $certificate->pvz);
         }
         $this->objects = $objects;
     }

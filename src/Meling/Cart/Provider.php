@@ -23,6 +23,11 @@ abstract class Provider
     }
 
     /**
+     * @return int
+     */
+    public abstract function rewards();
+
+    /**
      * @return array
      */
     protected abstract function requireCertificates();

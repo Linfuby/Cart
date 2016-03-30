@@ -1,6 +1,12 @@
 <?php
-namespace Meling\Cart\Provider;
+namespace Meling\Tests\Cart\Provider;
 
+/**
+ * Провайдер Гостя
+ * 1. Сессия
+ * Class GuestTest
+ * @package Meling\Tests\Cart\Provider
+ */
 class GuestTest extends \PHPUnit_Framework_TestCase
 {
     /**
@@ -8,19 +14,10 @@ class GuestTest extends \PHPUnit_Framework_TestCase
      */
     protected $provider;
 
-    public static function getProvider($id = null, $data = array())
-    {
-        return new \Meling\Cart\Provider\Guest(new SAPIStub($data));
-    }
-
     public function setUp()
     {
-        $this->provider = $this->getProvider();
-    }
-
-    public function tearDown()
-    {
-        \Meling\CartTest::getDatabase()->get()->disconnect();
+        $data           = array();
+        $this->provider = new \Meling\Cart\Provider\Guest(new SAPIStub($data));
     }
 
     public function testAttributeOrder()
@@ -31,6 +28,11 @@ class GuestTest extends \PHPUnit_Framework_TestCase
     public function testMethodObjects()
     {
         $this->assertInstanceOf('\Meling\Cart\Objects', $this->provider->objects());
+    }
+
+    public function testMethodRewards()
+    {
+        $this->assertInternalType('int', $this->provider->rewards());
     }
 
 }
@@ -63,4 +65,5 @@ class SAPIStub extends \PHPixie\HTTP\Context\Session\SAPI
     {
         $this->sessionStarted = true;
     }
+
 }

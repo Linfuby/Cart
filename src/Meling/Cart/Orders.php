@@ -51,7 +51,7 @@ class Orders
 
     private function buildCustomProvider(array $options = array(), array $certificates = array())
     {
-        return new \Meling\Cart\Provider\Custom($options, $certificates);
+        return new \Meling\Cart\Provider\Custom($this->provider, $options, $certificates);
     }
 
     private function buildOrder($id = null, $customer = null, $provider = null)
@@ -80,26 +80,26 @@ class Orders
         $objectsShop       = array();
         $objectsDeliveries = array();
         foreach($this->provider->objects()->asArray() as $object) {
-            if($object->shopId()) {
-                if($object->shopTariffId()) {
-                    $objectsDeliveries[$object->deliveryId() . $object->shopTariffId() . $object->addressId()] = array(
+            if($object->getShopId()) {
+                if($object->getShopTariffId()) {
+                    $objectsDeliveries[$object->getShopId() . $object->getShopTariffId() . $object->getAddressId()] = array(
                         'options'      => array(),
                         'certificates' => array(),
                     );
                     if($object instanceof \Meling\Cart\Objects\Option) {
-                        $objectsDeliveries[$object->deliveryId() . $object->shopTariffId() . $object->addressId()]['options'][] = $object;
+                        $objectsDeliveries[$object->getShopId() . $object->getShopTariffId() . $object->getAddressId()]['options'][] = $object;
                     } elseif($object instanceof \Meling\Cart\Objects\Certificate) {
-                        $objectsDeliveries[$object->deliveryId() . $object->shopTariffId() . $object->addressId()]['certificates'][] = $object;
+                        $objectsDeliveries[$object->getShopId() . $object->getShopTariffId() . $object->getAddressId()]['certificates'][] = $object;
                     }
                 } else {
-                    $objectsShop[$object->shopId()] = array(
+                    $objectsShop[$object->getShopId()] = array(
                         'options'      => array(),
                         'certificates' => array(),
                     );
                     if($object instanceof \Meling\Cart\Objects\Option) {
-                        $objectsShop[$object->shopId()]['options'][] = $object;
+                        $objectsShop[$object->getShopId()]['options'][] = $object;
                     } elseif($object instanceof \Meling\Cart\Objects\Certificate) {
-                        $objectsShop[$object->shopId()]['certificates'][] = $object;
+                        $objectsShop[$object->getShopId()]['certificates'][] = $object;
                     }
                 }
             }

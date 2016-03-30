@@ -8,7 +8,7 @@ namespace Meling\Cart\Wrappers\CartCertificate;
  * @method \PHPixie\ORM\Wrappers\Type\Database\Entity certificate()
  * @package Meling\Cart\Wrappers\CartCertificate
  */
-class Entity extends \PHPixie\ORM\Wrappers\Type\Database\Entity
+class Entity extends \Meling\Cart\Wrappers\Entity
 {
 
 }

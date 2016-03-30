@@ -4,7 +4,7 @@ namespace Meling\Cart;
 class Wrappers extends \PHPixie\ORM\Wrappers\Implementation
 {
     protected $databaseEntities = array(
-        'cart',
+        'cartProduct',
         'cartCertificate',
         'certificate',
         'customer',

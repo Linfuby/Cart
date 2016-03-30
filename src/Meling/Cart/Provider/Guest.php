@@ -14,6 +14,14 @@ class Guest extends \Meling\Cart\Provider
         $this->guest = $guest;
     }
 
+    /**
+     * @return int
+     */
+    public function rewards()
+    {
+        return 0;
+    }
+
     protected function requireCertificates()
     {
         return $this->guest->get('certificates', array());

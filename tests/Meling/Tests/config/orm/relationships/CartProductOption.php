@@ -2,9 +2,9 @@
 return array(
     'type'         => 'oneToMany',
     'owner'        => 'option',
-    'items'        => 'cart',
+    'items'        => 'cartProduct',
     'ownerOptions' => array(
-        'itemsProperty' => 'cart',
+        'itemsProperty' => 'cartProduct',
     ),
     'itemsOptions' => array(
         'ownerProperty' => 'option',

@@ -1,25 +1,20 @@
 <?php
 namespace Meling\Cart\Objects;
 
+/**
+ * Объект
+ * Class Object
+ * @package Meling\Cart\Objects
+ */
 abstract class Object
 {
-    /**
-     * @var mixed
-     */
-    protected $addressId;
-
-    /**
-     * @var mixed
-     */
-    protected $deliveryId;
-
     /**
      * @var mixed
      */
     protected $id;
 
     /**
-     * @var \PHPixie\ORM\Wrappers\Type\Database\Entity
+     * @var \Meling\Cart\Wrappers\Entity
      */
     protected $entity;
 
@@ -44,73 +39,100 @@ abstract class Object
     protected $shopTariffId;
 
     /**
-     * Object constructor.
-     * @param mixed                                      $id
-     * @param \PHPixie\ORM\Wrappers\Type\Database\Entity $entity
-     * @param int                                        $price
-     * @param int                                        $quantity
-     * @param mixed                                      $shopId
-     * @param mixed                                      $deliveryId
-     * @param mixed                                      $shopTariffId
-     * @param mixed                                      $addressId
+     * @var mixed
      */
-    public function __construct(
-        $id,
-        $entity,
-        $price,
-        $quantity = 1,
-        $shopId = null,
-        $deliveryId = null,
-        $shopTariffId = null,
-        $addressId = null)
+    protected $addressId;
+
+    /**
+     * @var string
+     */
+    protected $pvz;
+
+    /**
+     * Object constructor.
+     * @param mixed                        $id           Идентификатор
+     * @param \Meling\Cart\Wrappers\Entity $entity       Сущность
+     * @param int                          $price        Стоимость
+     * @param int                          $quantity     Количество
+     * @param mixed                        $shopId       Идентфикатор Точки отправления
+     * @param mixed                        $shopTariffId Идентификатор Тарифа доставки
+     * @param mixed                        $addressId    Идентификатор Точки получения
+     * @param string                       $pvz          Пункт выдачи
+     */
+    public function __construct($id, $entity, $price, $quantity = 1, $shopId = null, $shopTariffId = null, $addressId = null, $pvz = null)
     {
-        $this->id           = $id;
+        $this->id           = (string)$id;
         $this->entity       = $entity;
         $this->price        = (int)$price;
         $this->quantity     = (int)$quantity;
         $this->shopId       = $shopId;
-        $this->deliveryId   = $deliveryId;
         $this->shopTariffId = $shopTariffId;
         $this->addressId    = $addressId;
+        $this->pvz          = $pvz;
     }
 
-    public function addressId()
+    /**
+     * @return mixed
+     */
+    public function getAddressId()
     {
         return $this->addressId;
     }
 
-    public function deliveryId()
-    {
-        return $this->deliveryId;
-    }
-
-    public function entity()
+    /**
+     * @return \Meling\Cart\Wrappers\Entity
+     */
+    public function getEntity()
     {
         return $this->entity;
     }
 
-    public function id()
+    /**
+     * @return mixed
+     */
+    public function getId()
     {
         return $this->id;
     }
 
-    public function price()
+    /**
+     * @return int
+     */
+    public function getPrice()
     {
         return $this->price;
     }
 
-    public function quantity()
+    /**
+     * @return string
+     */
+    public function getPvz()
+    {
+        return $this->pvz;
+    }
+
+    /**
+     * @return int
+     */
+    public function getQuantity()
     {
         return $this->quantity;
     }
 
-    public function shopId()
+    /**
+     * @return mixed
+     */
+    public function getShopId()
     {
         return $this->shopId;
     }
 
-    public function shopTariffId()
+    /**
+     * @return mixed
+     */
+    public function getShopTariffId()
     {
         return $this->shopTariffId;
     }
+
 }

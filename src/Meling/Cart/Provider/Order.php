@@ -17,6 +17,14 @@ class Order extends \Meling\Cart\Provider
         $this->order = $order;
     }
 
+    /**
+     * @return int
+     */
+    public function rewards()
+    {
+        return $this->order->customer()->rewards();
+    }
+
     protected function requireCertificates()
     {
         return $this->order->orderCertificates()->asArray(true);

@@ -1,5 +1,5 @@
 <?php
-namespace Meling\Cart\Wrappers\Cart;
+namespace Meling\Cart\Wrappers\CartProduct;
 
 /**
  * Class Entity

@@ -8,7 +8,7 @@ class Product
      */
     public function __construct($object)
     {
-
+        // TODO
     }
 
 }

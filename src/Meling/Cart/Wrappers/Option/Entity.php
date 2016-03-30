@@ -7,7 +7,7 @@ namespace Meling\Cart\Wrappers\Option;
  * @property int   price
  * @package Meling\Cart\Wrappers\Option
  */
-class Entity extends \PHPixie\ORM\Wrappers\Type\Database\Entity
+class Entity extends \Meling\Cart\Wrappers\Entity
 {
 
 }

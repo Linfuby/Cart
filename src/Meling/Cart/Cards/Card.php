@@ -31,10 +31,10 @@ class Card
      */
     public function __construct($id, $name, $discount, $rewards)
     {
-        $this->id       = $id;
-        $this->name     = $name;
-        $this->discount = $discount;
-        $this->rewards  = $rewards;
+        $this->id       = (string)$id;
+        $this->name     = (string)$name;
+        $this->discount = (int)$discount;
+        $this->rewards  = (int)$rewards;
     }
 
     public function discount()

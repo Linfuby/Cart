@@ -17,6 +17,14 @@ class Customer extends \Meling\Cart\Provider
         $this->customer = $customer;
     }
 
+    /**
+     * @return int
+     */
+    public function rewards()
+    {
+        return $this->customer->rewards();
+    }
+
     protected function requireCertificates()
     {
         return $this->customer->cartCertificates()->asArray(true);
@@ -24,7 +32,7 @@ class Customer extends \Meling\Cart\Provider
 
     protected function requireOptions()
     {
-        return $this->customer->carts()->asArray(true);
+        return $this->customer->cartProducts()->asArray(true);
     }
 
 }

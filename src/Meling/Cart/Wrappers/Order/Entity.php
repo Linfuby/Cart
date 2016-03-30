@@ -10,6 +10,7 @@ namespace Meling\Cart\Wrappers\Order;
  * @property mixed addressId
  * @method \PHPixie\ORM\Loaders\Loader\Proxy\Editable|\Meling\Cart\Wrappers\OrderCertificate\Entity[] orderCertificates()
  * @method \PHPixie\ORM\Loaders\Loader\Proxy\Editable|\Meling\Cart\Wrappers\OrderProduct\Entity[] orderProducts()
+ * @method \Meling\Cart\Wrappers\Customer\Entity customer()
  * @package Meling\Cart\Wrappers\Order
  */
 class Entity extends \PHPixie\ORM\Wrappers\Type\Database\Entity

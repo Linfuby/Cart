@@ -1,5 +1,5 @@
 <?php
-namespace Meling;
+namespace Meling\Tests;
 
 /**
  * Class CartTest
@@ -48,7 +48,7 @@ class CartTest extends \PHPUnit_Framework_TestCase
             $config    = new \PHPixie\Config(new \PHPixie\Slice());
             $config    = $config->directory(__DIR__, 'config')->arraySlice('orm');
             $wrappers  = new \Meling\Cart\Wrappers();
-            self::$orm = new \PHPixie\ORM(\Meling\CartTest::getDatabase(), $config, $wrappers);
+            self::$orm = new \PHPixie\ORM(\Meling\Tests\CartTest::getDatabase(), $config, $wrappers);
         }
 
         return self::$orm;
@@ -57,23 +57,22 @@ class CartTest extends \PHPUnit_Framework_TestCase
     public function setUp()
     {
         /**
-         * @var \Meling\Cart\Wrappers\Order\Entity $order
+         * @var \Meling\Cart\Customer          $customer
+         * @var \Meling\Cart\Provider\Customer $provider
          */
-        $customer   = \Meling\Cart\CustomerTest::getGuest();
-        $entity     = \Meling\CartTest::getORM()->createEntity('order');
-        $order      = new \Meling\Cart\Wrappers\Order\Entity($entity);
-        $provider   = new \Meling\Cart\Provider\Order($order);
+        $customer   = $this->getMock('\Meling\Cart\Customer', array(), array(), '', false);
+        $provider   = $this->getMock('\Meling\Cart\Provider\Customer', array(), array(), '', false);
         $this->cart = new \Meling\Cart($customer, $provider);
     }
 
-    public function tearDown()
+    public function testAttributeCustomer()
     {
-        \Meling\CartTest::getDatabase()->get()->disconnect();
+        $this->assertAttributeInstanceOf('Meling\Cart\Customer', 'customer', $this->cart);
     }
 
     public function testAttributeProvider()
     {
-        $this->assertAttributeInstanceOf('Meling\Cart\Provider\Order', 'provider', $this->cart);
+        $this->assertAttributeInstanceOf('Meling\Cart\Provider\Customer', 'provider', $this->cart);
     }
 
     public function testMethodOrders()

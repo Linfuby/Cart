@@ -4,24 +4,39 @@ namespace Meling\Cart\Provider;
 class Custom extends \Meling\Cart\Provider
 {
     /**
-     * @var array
+     * @var \Meling\Cart\Provider
      */
-    private $certificates;
+    protected $provider;
 
     /**
      * @var array
      */
-    private $options;
+    protected $options;
+
+    /**
+     * @var array
+     */
+    protected $certificates;
 
     /**
      * Order constructor.
-     * @param array $options
-     * @param array $certificates
+     * @param \Meling\Cart\Provider $provider
+     * @param array                 $options
+     * @param array                 $certificates
      */
-    public function __construct(array $options = array(), array $certificates = array())
+    public function __construct(\Meling\Cart\Provider $provider, array $options = array(), array $certificates = array())
     {
+        $this->provider     = $provider;
         $this->options      = $options;
         $this->certificates = $certificates;
+    }
+
+    /**
+     * @return int
+     */
+    public function rewards()
+    {
+        return $this->provider->rewards();
     }
 
     protected function requireCertificates()
