@@ -19,16 +19,15 @@ class CartTest extends \PHPUnit_Framework_TestCase
     public static function getDatabase()
     {
         if(self::$database === null) {
-            var_dump(__FUNCTION__);
             $slice          = new \PHPixie\Slice();
             $config         = $slice->arrayData(
                 array(
                     'default' => array(
                         'driver'     => 'pdo',
-                        'connection' => 'mysql:host=localhost;dbname=parishop_pixie',
+                        'connection' => 'mysql:host=localhost;dbname=parishop_pixie_new',
                         'user'       => 'parishop',
                         'password'   => 'xd7pL2yvcL9yXUZ8fE7C',
-                        'database'   => 'parishop_pixie',
+                        'database'   => 'parishop_pixie_new',
                     ),
                 )
             );
@@ -41,7 +40,6 @@ class CartTest extends \PHPUnit_Framework_TestCase
     public static function getORM()
     {
         if(self::$orm === null) {
-            var_dump(__FUNCTION__);
             /**
              * @var \PHPixie\Config\Storages $storages
              */

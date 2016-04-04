@@ -38,6 +38,7 @@ class Order extends \Meling\Cart\Provider
             $orderProduct->deliveryId   = $this->order->deliveryId;
             $orderProduct->shopTariffId = $this->order->shopTariffId;
             $orderProduct->addressId    = $this->order->addressId;
+            $orderProduct->pvz          = $this->order->pvz;
             $options[]                  = $orderProduct;
         }
 
