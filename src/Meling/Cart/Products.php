@@ -4,39 +4,43 @@ namespace Meling\Cart;
 class Products
 {
     /**
-     * @var Products\Product[]
-     */
-    protected $products;
-
-    /**
-     * @var Provider
+     * @var \Meling\Cart\Providers\Provider
      */
     protected $provider;
 
     /**
-     * @param Provider $provider
+     * @var Products\Product
      */
-    public function __construct(Provider $provider)
+    protected $products;
+
+    /**
+     * Objects constructor.
+     * @param Providers\Provider $provider
+     */
+    public function __construct(Providers\Provider $provider)
     {
         $this->provider = $provider;
     }
 
     /**
-     * @param \Meling\Cart\Objects\Certificate $certificate
-     * @return int
+     * @param                              $id
+     * @param \Meling\Cart\Wrappers\Entity $entity
+     * @param                              $price
+     * @param                              $quantity
+     * @param                              $image
+     * @param                              $shopId
+     * @param                              $deliveryId
+     * @param                              $shopTariffId
+     * @param                              $addressId
+     * @param                              $pvz
+     * @param                              $customerId
+     * @return Products\Product
      */
-    public function addCertificate($certificate)
+    public function add($id, $entity, $price = null, $quantity = null, $image = null, $shopId = null, $deliveryId = null, $shopTariffId = null, $addressId = null, $pvz = null, $customerId = null)
     {
-        return $this->provider->objects()->add($certificate);
-    }
+        $object = $this->provider->addObject($id, $entity, $price, $quantity, $image, $shopId, $deliveryId, $shopTariffId, $addressId, $pvz, $customerId);
 
-    /**
-     * @param \Meling\Cart\Objects\Option $option
-     * @return int
-     */
-    public function addOption($option)
-    {
-        return $this->provider->objects()->add($option);
+        return $this->buildProduct($object);
     }
 
     public function asArray()
@@ -52,15 +56,30 @@ class Products
             return;
         }
         $products = array();
-        foreach($this->provider->objects()->asArray() as $id => $object) {
-            $products[$id] = $this->buildProduct($object);
+        foreach($this->provider->objects() as $object) {
+            $product = $this->buildProduct($object);
+            if($product) {
+                $products[$product->id()] = $product;
+            }
         }
         $this->products = $products;
     }
 
+    private function buildOption($object)
+    {
+        return new Products\Option();
+    }
+
     private function buildProduct($object)
     {
-        return new Products\Product($object);
+        if(!empty($object['optionId'])) {
+            return $this->buildOption($object);
+        }
+        if(!empty($object['certificateId'])) {
+            return $this->buildCertificate($object);
+        }
+
+        return null;
     }
 
 }

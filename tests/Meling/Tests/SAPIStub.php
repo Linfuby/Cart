@@ -1,5 +1,5 @@
 <?php
-namespace Meling\Tests\Cart\Provider;
+namespace Meling\Tests;
 /**
  * @coversDefaultClass PHPixie\HTTP\Context\Session\SAPI
  */

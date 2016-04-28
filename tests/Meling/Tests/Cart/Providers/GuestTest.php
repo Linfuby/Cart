@@ -1,12 +1,18 @@
 <?php
-namespace Meling\Tests\Cart;
+namespace Meling\Tests\Cart\Providers;
 
-class ProductsTest extends \PHPUnit_Framework_TestCase
+/**
+ * Провайдер Гостя
+ * 1. Сессия
+ * Class GuestTest
+ * @package Meling\Tests\Cart\Provider
+ */
+class GuestTest extends \PHPUnit_Framework_TestCase
 {
     /**
-     * @var \Meling\Cart\Products
+     * @var \Meling\Cart\Providers\Guest
      */
-    protected $products;
+    protected $guest;
 
     /**
      * @var \PHPixie\Database
@@ -38,8 +44,7 @@ class ProductsTest extends \PHPUnit_Framework_TestCase
         $wrappers       = new \Meling\Cart\Wrappers();
         $this->orm      = new \PHPixie\ORM(\Meling\Tests\CartTest::getDatabase(), $config, $wrappers);
         $data           = array();
-        $provider       = new \Meling\Cart\Providers\Guest($this->orm, new \Meling\Tests\SAPIStub($data));
-        $this->products = new \Meling\Cart\Products($provider);
+        $this->guest    = new \Meling\Cart\Providers\Guest($this->orm, new \Meling\Tests\SAPIStub($data));
     }
 
     public function tearDown()
@@ -47,16 +52,26 @@ class ProductsTest extends \PHPUnit_Framework_TestCase
         $this->database->get()->disconnect();
     }
 
-    public function testAttributeProvider()
+    public function testAttributeOrder()
     {
-        $this->assertAttributeInstanceOf('\Meling\Cart\Providers\Provider', 'provider', $this->products);
+        $this->assertAttributeInstanceOf('\PHPixie\HTTP\Context\Session', 'session', $this->guest);
     }
 
-    public function testMethodAsArray()
+    public function testMethodAddObjectCertificate()
+    {
+        $certificate = $this->orm->query('certificate')->findOne();
+        $this->assertInternalType('int', $this->guest->addObject(null, $certificate));
+    }
+
+    public function testMethodAddObjectOption()
     {
         $option = $this->orm->query('option')->findOne();
-        $this->products->add(1, $option, null, 1, 'image');
-        $this->assertInternalType('array', $this->products->asArray());
+        $this->assertInternalType('int', $this->guest->addObject(null, $option, null, null, 'image.jpg'));
+    }
+
+    public function testMethodObjects()
+    {
+        $this->assertInternalType('array', $this->guest->objects());
     }
 
 }
