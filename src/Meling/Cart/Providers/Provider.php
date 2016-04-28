@@ -9,19 +9,29 @@ namespace Meling\Cart\Providers;
 abstract class Provider
 {
     /**
+     * @var Product[]
+     */
+    protected $options;
+
+    /**
+     * @var Product[]
+     */
+    protected $certificates;
+
+    /**
+     * @var Customer
+     */
+    protected $customer;
+
+    /**
      * @var \PHPixie\ORM
      */
-    protected $orm;
+    private $orm;
 
     /**
      * @var \PHPixie\HTTP\Context\Session
      */
-    protected $session;
-
-    /**
-     * @var CartObject[]
-     */
-    protected $objects;
+    private $session;
 
     /**
      * Provider constructor.
@@ -35,75 +45,22 @@ abstract class Provider
     }
 
     /**
-     * @param                              $id
-     * @param \Meling\Cart\Wrappers\Entity $entity
-     * @param                              $price
-     * @param                              $quantity
-     * @param                              $image
-     * @param                              $shopId
-     * @param                              $deliveryId
-     * @param                              $shopTariffId
-     * @param                              $addressId
-     * @param                              $pvz
-     * @param                              $customerId
-     * @return string
+     * @return \Meling\Tests\ORM
      */
-    public function addObject($id, $entity, $price = null, $quantity = null, $image = null, $shopId = null, $deliveryId = null, $shopTariffId = null, $addressId = null, $pvz = null, $customerId = null)
+    public function orm()
     {
-        $this->requireObjects();
-        if($entity instanceof \Meling\Cart\Wrappers\Certificate\Entity) {
-            return $this->addCertificate($id, $entity, $price, $quantity, $image, $shopId, $deliveryId, $shopTariffId, $addressId, $pvz, $customerId);
-        }
-        if($entity instanceof \Meling\Cart\Wrappers\Option\Entity) {
-            return $this->addOption($id, $entity, $price, $quantity, $image, $shopId, $deliveryId, $shopTariffId, $addressId, $pvz, $customerId);
-        }
-
-        return null;
+        return $this->orm;
     }
 
-    public function objects()
+    public function session()
     {
-        $this->requireObjects();
-
-        return $this->objects;
+        return $this->session;
     }
 
-    /**
-     * @param                                          $id
-     * @param \Meling\Cart\Wrappers\Certificate\Entity $certificate
-     * @param                                          $price
-     * @param                                          $quantity
-     * @param                                          $image
-     * @param                                          $shopId
-     * @param                                          $deliveryId
-     * @param                                          $shopTariffId
-     * @param                                          $addressId
-     * @param                                          $pvz
-     * @param                                          $customerId
-     * @return array
-     */
-    protected abstract function addCertificate($id, $certificate, $price = null, $quantity = null, $image = null, $shopId = null, $deliveryId = null, $shopTariffId = null, $addressId = null, $pvz = null, $customerId = null);
+    public abstract function certificates();
 
-    /**
-     * @param                                     $id
-     * @param \Meling\Cart\Wrappers\Option\Entity $option
-     * @param                                     $price
-     * @param                                     $quantity
-     * @param                                     $image
-     * @param                                     $shopId
-     * @param                                     $deliveryId
-     * @param                                     $shopTariffId
-     * @param                                     $addressId
-     * @param                                     $pvz
-     * @param                                     $customerId
-     * @return array
-     */
-    protected abstract function addOption($id, $option, $price = null, $quantity = null, $image = null, $shopId = null, $deliveryId = null, $shopTariffId = null, $addressId = null, $pvz = null, $customerId = null);
+    public abstract function customer();
 
-    /**
-     * @return array
-     */
-    protected abstract function requireObjects();
-
+    public abstract function options();
 
 }

@@ -13,72 +13,34 @@ class Cart
     protected $instances = array();
 
     /**
-     * @var \PHPixie\ORM
-     */
-    protected $orm;
-
-    /**
      * @var Cart\Providers\Provider
      */
     private $provider;
 
     /**
-     * @param \PHPixie\ORM            $orm
      * @param Cart\Providers\Provider $provider
      */
-    public function __construct(\PHPixie\ORM $orm, Cart\Providers\Provider $provider)
+    public function __construct(Cart\Providers\Provider $provider)
     {
-        $this->orm      = $orm;
         $this->provider = $provider;
     }
 
-    public function deliveries()
+    /**
+     * @return Cart\Products
+     */
+    public function products()
     {
-        return $this->instance('deliveries');
+        return $this->instance('products');
     }
 
-    public function orders()
+    public function provider()
     {
-        return $this->instance('orders');
+        return $this->provider;
     }
 
-    public function orm()
+    protected function buildProducts()
     {
-        return $this->orm;
-    }
-
-    public function points()
-    {
-        return $this->instance('points');
-    }
-
-    public function shops()
-    {
-        return $this->instance('shops');
-    }
-
-    public function tariffs()
-    {
-        return $this->instance('tariffs');
-    }
-
-    protected function buildTariffs()
-    {
-        return new Cart\Tariffs();
-    }
-    protected function buildDeliveries()
-    {
-        return new Cart\Deliveries();
-    }
-
-    protected function buildOrders()
-    {
-        //return new Cart\Orders($this->provider->customer(), $this->provider);
-    }
-
-    protected function buildPoints()
-    {
-        return new Cart\Points($this->orm);
+        return new Cart\Products(array_merge($this->provider()->options(), $this->provider()->certificates()));
     }
 
     protected function instance($name)

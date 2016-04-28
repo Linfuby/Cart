@@ -1,46 +1,62 @@
 <?php
 namespace Meling\Cart;
 
+/**
+ * Class Points
+ * @package Meling\Cart
+ */
 class Points
 {
     /**
-     * @var \Meling\Cart
+     * @var Products
      */
-    protected $cart;
+    protected $products;
 
-    protected $points = array();
+    /**
+     * @var Points\Tariffs\Deliveries
+     */
+    private $deliveries;
+
+    /**
+     * @var Points\Tariffs
+     */
+    private $tariffs;
 
     /**
      * Points constructor.
-     * @param \Meling\Cart $cart
+     * @param Products $products
      */
-    public function __construct(\Meling\Cart $cart)
+    public function __construct(Products $products)
     {
-        $this->cart = $cart;
+        $this->products = $products;
     }
 
-    /**
-     * @param $id
-     * @return Points\Point
-     */
-    public function get($id)
+    public function deliveries($productId = null)
     {
-        if(!array_key_exists($id, $this->points)) {
-            $shop              = $this->cart->orm()->query('shop')->in($id)->findOne();
-            $this->points[$id] = $this->buildPoint($id, $shop);
+        if($this->deliveries === null) {
+            $this->deliveries = $this->tariffs($productId)->deliveries();
         }
 
-        return $this->points[$id];
+        return $this->deliveries;
     }
 
-    /**
-     * @param mixed                                                   $id
-     * @param \PHPixie\ORM\Models\Type\Database\Implementation\Entity $shop
-     * @return Points\Point
-     */
-    protected function buildPoint($id, $shop)
+    public function tariffs($productId = null)
     {
-        return new Points\Point($id, $shop, $this->cart->deliveries());
+        if($this->tariffs === null) {
+            if($productId === null) {
+                $products = $this->products;
+            } else {
+                $products = array($this->products->get($productId));
+            }
+            $this->tariffs = $this->buildTariffs($products);
+        }
+
+        return $this->tariffs;
+    }
+
+    protected function buildTariffs($products)
+    {
+        return new Points\Tariffs($products);
     }
 
 }

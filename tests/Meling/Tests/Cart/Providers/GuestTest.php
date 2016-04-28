@@ -1,77 +1,73 @@
 <?php
 namespace Meling\Tests\Cart\Providers;
 
-/**
- * Провайдер Гостя
- * 1. Сессия
- * Class GuestTest
- * @package Meling\Tests\Cart\Provider
- */
 class GuestTest extends \PHPUnit_Framework_TestCase
 {
     /**
      * @var \Meling\Cart\Providers\Guest
      */
-    protected $guest;
-
-    /**
-     * @var \PHPixie\Database
-     */
-    protected $database;
-
-    /**
-     * @var \PHPixie\ORM
-     */
-    protected $orm;
+    protected $providerGuest;
 
     public function setUp()
     {
-        $slice          = new \PHPixie\Slice();
-        $config         = $slice->arrayData(
+        $orm                 = new \Meling\Tests\ORM();
+        $session             = new \Meling\Tests\Session(
             array(
-                'default' => array(
-                    'driver'     => 'pdo',
-                    'connection' => 'mysql:host=localhost;dbname=parishop_pixie',
-                    'user'       => 'parishop',
-                    'password'   => 'xd7pL2yvcL9yXUZ8fE7C',
-                    'database'   => 'parishop_pixie',
+                'options'      => array(
+                    array(
+                        'optionId' => '-169235494',
+                    ),
+                ),
+                'certificates' => array(
+                    array(
+                        'certificateId' => '2',
+                    ),
                 ),
             )
         );
-        $this->database = new \PHPixie\Database($config);
-        $config         = new \PHPixie\Config($slice);
-        $config         = $config->directory(__DIR__, 'config')->arraySlice('orm');
-        $wrappers       = new \Meling\Cart\Wrappers();
-        $this->orm      = new \PHPixie\ORM(\Meling\Tests\CartTest::getDatabase(), $config, $wrappers);
-        $data           = array();
-        $this->guest    = new \Meling\Cart\Providers\Guest($this->orm, new \Meling\Tests\SAPIStub($data));
+        $this->providerGuest = new \Meling\Cart\Providers\Guest($orm, $session);
     }
 
-    public function tearDown()
+    public function testAttributeOrm()
     {
-        $this->database->get()->disconnect();
+        $this->assertAttributeInstanceOf('\PHPixie\ORM', 'orm', $this->providerGuest);
+        $this->providerGuest->orm()->disconnect();
     }
 
-    public function testAttributeOrder()
+    public function testAttributeSession()
     {
-        $this->assertAttributeInstanceOf('\PHPixie\HTTP\Context\Session', 'session', $this->guest);
+        $this->assertAttributeInstanceOf('\PHPixie\HTTP\Context\Session', 'session', $this->providerGuest);
+        $this->providerGuest->orm()->disconnect();
     }
 
-    public function testMethodAddObjectCertificate()
+    public function testMethodCertificates()
     {
-        $certificate = $this->orm->query('certificate')->findOne();
-        $this->assertInternalType('int', $this->guest->addObject(null, $certificate));
+        $this->assertInternalType('array', $this->providerGuest->certificates());
+        $this->providerGuest->orm()->disconnect();
     }
 
-    public function testMethodAddObjectOption()
+    public function testMethodCustomer()
     {
-        $option = $this->orm->query('option')->findOne();
-        $this->assertInternalType('int', $this->guest->addObject(null, $option, null, null, 'image.jpg'));
+        $this->assertInstanceOf('\Meling\Cart\Providers\Customer', $this->providerGuest->customer());
+        $this->providerGuest->orm()->disconnect();
     }
 
-    public function testMethodObjects()
+    public function testMethodOptions()
     {
-        $this->assertInternalType('array', $this->guest->objects());
+        $this->assertInternalType('array', $this->providerGuest->options());
+        $this->providerGuest->orm()->disconnect();
+    }
+
+    public function testMethodOrm()
+    {
+        $this->assertInstanceOf('\PHPixie\ORM', $this->providerGuest->orm());
+        $this->providerGuest->orm()->disconnect();
+    }
+
+    public function testMethodSession()
+    {
+        $this->assertInstanceOf('\PHPixie\HTTP\Context\Session', $this->providerGuest->session());
+        $this->providerGuest->orm()->disconnect();
     }
 
 }
