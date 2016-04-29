@@ -24,6 +24,7 @@
     },
     "autoload": {
         "psr-4": {
+            "Parishop\\": "src/Parishop",
             "Meling\\": "src/Meling",
             "Meling\\Tests\\": "tests/Meling/Tests"
         }

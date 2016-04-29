@@ -34,14 +34,29 @@ abstract class Provider
     private $session;
 
     /**
-     * Provider constructor.
-     * @param \PHPixie\ORM                  $orm
-     * @param \PHPixie\HTTP\Context\Session $session
+     * @var \Parishop\ORMWrappers\City\Entity
      */
-    public function __construct(\PHPixie\ORM $orm, \PHPixie\HTTP\Context\Session $session)
+    private $city;
+
+    /**
+     * Provider constructor.
+     * @param \PHPixie\ORM                      $orm
+     * @param \PHPixie\HTTP\Context\Session     $session
+     * @param \Parishop\ORMWrappers\City\Entity $city
+     */
+    public function __construct(\PHPixie\ORM $orm, \PHPixie\HTTP\Context\Session $session, \Parishop\ORMWrappers\City\Entity $city)
     {
         $this->orm     = $orm;
         $this->session = $session;
+        $this->city    = $city;
+    }
+
+    /**
+     * @return \Parishop\ORMWrappers\City\Entity
+     */
+    public function city()
+    {
+        return $this->city;
     }
 
     /**
@@ -52,6 +67,9 @@ abstract class Provider
         return $this->orm;
     }
 
+    /**
+     * @return \PHPixie\HTTP\Context\Session
+     */
     public function session()
     {
         return $this->session;

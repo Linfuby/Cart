@@ -12,9 +12,11 @@ class CartTest extends \PHPUnit_Framework_TestCase
     {
         $orm     = new \Meling\Tests\ORM();
         $session = new \Meling\Tests\Session();
-        /** @var \Meling\Tests\ORMWrappers\Entities\Customer $user */
-        $user       = $orm->query('customer')->in(1)->findOne();
-        $provider   = new \Meling\Cart\Providers\User($orm, $session, $user);
+        /** @var \Parishop\ORMWrappers\Customer\Entity $user */
+        $user = $orm->query('customer')->in(1)->findOne();
+        /** @var \Parishop\ORMWrappers\City\Entity $city */
+        $city       = $orm->query('city')->where('name', 'Москва')->findOne();
+        $provider   = new \Meling\Cart\Providers\User($orm, $session, $city, $user);
         $this->cart = new \Meling\Cart($provider);
     }
 
