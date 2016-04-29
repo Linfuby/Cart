@@ -12,12 +12,15 @@ class Product
      */
     protected $product;
 
+    protected $priceFinal;
+
     /**
      * @param \Meling\Cart\Providers\Product $product
      */
     public function __construct($product)
     {
-        $this->product = $product;
+        $this->product    = $product;
+        $this->priceFinal = $this->priceTotal();
     }
 
     /**
@@ -26,6 +29,20 @@ class Product
     public function entity()
     {
         return $this->product->entity;
+    }
+
+    public function priceFinal($price = null)
+    {
+        if((int)$price) {
+            $this->priceFinal = $this->priceFinal - (int)$price;
+        }
+
+        return $this->priceFinal;
+    }
+
+    public function priceTotal()
+    {
+        return $this->product->price * $this->product->quantity;
     }
 
 }

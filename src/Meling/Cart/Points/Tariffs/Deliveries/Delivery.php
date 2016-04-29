@@ -4,9 +4,19 @@ namespace Meling\Cart\Points\Tariffs\Deliveries;
 abstract class Delivery
 {
     /**
-     * @var \Meling\Cart\Points\Tariffs\Tariff
+     * @var \Meling\Tests\ORMWrappers\Entities\ShopTariff[]
      */
-    private $tariff;
+    protected $tariffs;
+
+    /**
+     * @var \Meling\Tests\ORMWrappers\Entities\ShopTariff
+     */
+    protected $defaultTariff;
+
+    /**
+     * @var \Meling\Tests\ORMWrappers\Entities\Delivery
+     */
+    private $delivery;
 
     /**
      * @var string
@@ -15,18 +25,28 @@ abstract class Delivery
 
     /**
      * Delivery constructor.
-     * @param string                             $name
-     * @param \Meling\Tests\ORMWrappers\Entities\ShopTariff $shopTariff
+     * @param \Meling\Tests\ORMWrappers\Entities\Delivery     $delivery
+     * @param \Meling\Tests\ORMWrappers\Entities\ShopTariff[] $tariffs
+     * @param \Meling\Tests\ORMWrappers\Entities\ShopTariff   $defaultTariff
      */
-    public function __construct($name, $tariff)
+    public function __construct($delivery, $tariffs, $defaultTariff)
     {
-        $this->tariff = $tariff;
-        $this->name   = $name;
+        $this->delivery      = $delivery;
+        $this->tariffs       = $tariffs;
+        $this->defaultTariff = $defaultTariff;
     }
 
     public function calculate()
     {
-        return $this->tariff()->calculate();
+        return $this->defaultTariff()->calculate();
+    }
+
+    /**
+     * @return \Meling\Tests\ORMWrappers\Entities\ShopTariff
+     */
+    public function defaultTariff()
+    {
+        return $this->defaultTariff;
     }
 
     /**
@@ -34,7 +54,7 @@ abstract class Delivery
      */
     public function fullName()
     {
-        return $this->name . ' (' . $this->tariff()->name() . ')';
+        return $this->name() . ' (' . $this->defaultTariff()->getRequiredField('name') . ')';
     }
 
     /**
@@ -42,15 +62,7 @@ abstract class Delivery
      */
     public function name()
     {
-        return $this->name;
-    }
-
-    /**
-     * @return \Meling\Cart\Points\Tariffs\Tariff
-     */
-    public function tariff()
-    {
-        return $this->tariff;
+        return $this->delivery->getRequiredField('name');
     }
 
 }

@@ -8,19 +8,28 @@ class Tariffs
      */
     protected $products;
 
-    private   $tariffs;
+    /**
+     * @var \Meling\Tests\ORMWrappers\Entities\ShopTariff[]
+     */
+    private $tariffs;
 
-    private   $deliveries;
+    /**
+     * @var \Meling\Cart\Points\Tariffs\Deliveries\Delivery[]
+     */
+    private $deliveries;
 
     /**
      * Tariffs constructor.
-     * @param $products
+     * @param \Meling\Cart\Products\Product[] $products
      */
-    public function __construct($products)
+    public function __construct(array $products)
     {
         $this->products = $products;
     }
 
+    /**
+     * @return \Meling\Tests\ORMWrappers\Entities\ShopTariff[]
+     */
     public function asArray()
     {
         $this->requireTariffs();
@@ -31,10 +40,25 @@ class Tariffs
     public function deliveries()
     {
         if($this->deliveries === null) {
+            $this->requireTariffs();
             $this->deliveries = $this->buildDeliveries();
         }
 
         return $this->deliveries;
+    }
+
+    /**
+     * @param $id
+     * @return \Meling\Tests\ORMWrappers\Entities\ShopTariff
+     * @throws \Exception
+     */
+    public function get($id)
+    {
+        $this->requireTariffs();
+        if(array_key_exists($id, $this->tariffs)) {
+            return $this->tariffs[$id];
+        }
+        throw new \Exception('Tariff ' . $id . ' does not exist');
     }
 
     protected function buildDeliveries()
@@ -51,7 +75,7 @@ class Tariffs
         foreach($this->products as $product) {
             foreach($product->entity()->shops() as $shop) {
                 foreach($shop->shopTariffs() as $shopTariff) {
-                    $tariffs[$shopTariff->id()] = $shopTariff->asObject();
+                    $tariffs[$shopTariff->id()] = $shopTariff;
                 }
             }
         }

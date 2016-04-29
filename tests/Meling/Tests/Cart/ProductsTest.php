@@ -20,6 +20,7 @@ class ProductsTest extends \PHPUnit_Framework_TestCase
         $certificate    = $orm->query('certificate')->in(3)->findOne();
         $certificate    = new \Meling\Cart\Providers\Product(1, $certificate, 3, 1500);
         $this->products = new \Meling\Cart\Products(array($option, $certificate));
+
         $orm->disconnect();
     }
 
@@ -28,5 +29,22 @@ class ProductsTest extends \PHPUnit_Framework_TestCase
         $this->assertAttributeInternalType('array', 'products', $this->products);
     }
 
+    public function testMethodAsArray()
+    {
+        $this->assertInternalType('array', $this->products->asArray());
+    }
+
+    /**
+     * @expectedException \Exception
+     */
+    public function testMethodException()
+    {
+        $this->assertInstanceOf('\Meling\Cart\Products\Product', $this->products->get(-1));
+    }
+
+    public function testMethodGet()
+    {
+        $this->assertInstanceOf('\Meling\Cart\Products\Product', $this->products->get(1));
+    }
 
 }

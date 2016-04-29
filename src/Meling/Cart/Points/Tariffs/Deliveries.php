@@ -26,13 +26,27 @@ class Deliveries
         return $this->deliveries;
     }
 
-    protected function buildDelivery($name)
+    public function get($id)
     {
-        $class = '\Meling\Cart\Points\Tariffs\Deliveries\\' . ucfirst($name);
-        if(class_exists($class)) {
-            return new $class();
+        $this->requireDeliveries();
+        if(array_key_exists($id, $this->deliveries)) {
+            return $this->deliveries[$id];
         }
-        throw new \Exception('Delivery ' . $name . ' does not exist');
+        throw new \Exception('Delivery ' . $id . ' does not exist');
+    }
+
+    /**
+     * @param \Meling\Tests\ORMWrappers\Entities\Delivery     $delivery
+     * @param \Meling\Tests\ORMWrappers\Entities\ShopTariff[] $tariffs
+     * @param \Meling\Tests\ORMWrappers\Entities\ShopTariff   $defaultTariff
+     * @return mixed
+     * @throws \Exception
+     */
+    protected function buildDelivery($delivery, $tariffs, $defaultTariff)
+    {
+        $class = '\Meling\Cart\Points\Tariffs\Deliveries\\' . ucfirst($delivery->getRequiredField('alias'));
+
+        return new $class($delivery, $tariffs, $defaultTariff);
     }
 
     protected function requireDeliveries()
@@ -42,11 +56,18 @@ class Deliveries
         }
         $deliveries = array();
         foreach($this->tariffs->asArray() as $tariff) {
-            if(array_key_exists($tariff->deliveryId, $deliveries)) {
-                $deliveries[$tariff->deliveryId] = $this->buildDelivery($tariff->delivery()->getRequiredField('name'));
+            if(!array_key_exists($tariff->delivery()->getRequiredField('alias'), $deliveries)) {
+                $deliveries[(string)$tariff->delivery()->getRequiredField('alias')] = (object)array(
+                    'class'         => $tariff->delivery(),
+                    'tariffs'       => array(),
+                    'defaultTariff' => $tariff
+                );
             }
+            $deliveries[(string)$tariff->delivery()->getRequiredField('alias')]->tariffs[(string)$tariff->id()] = $tariff;
         }
-        $this->deliveries = $deliveries;
+        foreach($deliveries as $alias => $delivery) {
+            $this->deliveries[] = $this->buildDelivery($delivery->class, $delivery->tariffs, $delivery->defaultTariff);
+        }
     }
 
 }

@@ -10,8 +10,22 @@ class ORMWrappers extends \PHPixie\ORM\Wrappers\Implementation
     public function databaseEntities()
     {
         return array(
-            'customer',
+            'allAction',
+            'actionType',
             'cartCertificate',
+            'cartOption',
+            'certificate',
+            'city',
+            'country',
+            'customer',
+            'delivery',
+            'option',
+            'order',
+            'orderCertificate',
+            'orderOption',
+            'region',
+            'shop',
+            'shopTariff',
         );
     }
 

@@ -18,16 +18,28 @@ class PointsTest extends \PHPUnit_Framework_TestCase
         $products     = array($option, $certificate);
         $products     = new \Meling\Cart\Products($products);
         $this->points = new \Meling\Cart\Points($products);
+
+        $orm->disconnect();
     }
 
     public function testMethodDeliveries()
     {
-        $this->assertAttributeInstanceOf('\Meling\Cart\Points\Deliveries', $this->points->deliveries(0));
+        $this->assertInstanceOf('\Meling\Cart\Points\Tariffs\Deliveries', $this->points->deliveries());
+    }
+
+    public function testMethodDeliveriesId()
+    {
+        $this->assertInstanceOf('\Meling\Cart\Points\Tariffs\Deliveries', $this->points->deliveries(1));
     }
 
     public function testMethodShops()
     {
-        $this->assertAttributeInstanceOf('\Meling\Cart\Points\Shops', $this->points->shops(0));
+        $this->assertInstanceOf('\Meling\Cart\Points\Shops', $this->points->shops());
+    }
+
+    public function testMethodShopsId()
+    {
+        $this->assertInstanceOf('\Meling\Cart\Points\Shops', $this->points->shops('-146541850'));
     }
 
 }

@@ -13,6 +13,11 @@ class Points
     protected $products;
 
     /**
+     * @var Points\Shops
+     */
+    private $shops;
+
+    /**
      * @var Points\Tariffs\Deliveries
      */
     private $deliveries;
@@ -31,6 +36,10 @@ class Points
         $this->products = $products;
     }
 
+    /**
+     * @param mixed $productId
+     * @return Points\Tariffs\Deliveries
+     */
     public function deliveries($productId = null)
     {
         if($this->deliveries === null) {
@@ -40,15 +49,34 @@ class Points
         return $this->deliveries;
     }
 
+    /**
+     * @param mixed $productId
+     * @return Points\Shops
+     */
+    public function shops($productId = null)
+    {
+        if($this->shops === null) {
+            $this->shops = $this->buildShops($productId);
+        }
+
+        return $this->shops;
+    }
+
+    /**
+     * @param mixed $productId
+     * @return Points\Tariffs
+     * @throws \Exception
+     */
     public function tariffs($productId = null)
     {
         if($this->tariffs === null) {
             if($productId === null) {
-                $products = $this->products;
+                $products = $this->products->asArray();
             } else {
                 $products = array($this->products->get($productId));
             }
             $this->tariffs = $this->buildTariffs($products);
+
         }
 
         return $this->tariffs;
@@ -57,6 +85,11 @@ class Points
     protected function buildTariffs($products)
     {
         return new Points\Tariffs($products);
+    }
+
+    private function buildShops($productId)
+    {
+        return new Points\Shops($this->products, $productId);
     }
 
 }

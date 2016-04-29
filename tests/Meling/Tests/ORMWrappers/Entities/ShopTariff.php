@@ -39,4 +39,9 @@ class ShopTariff extends \Meling\Tests\ORMWrappers\Entity
         return false;
     }
 
+    public function calculate()
+    {
+        return $this->getRequiredField('cost');
+    }
+
 }

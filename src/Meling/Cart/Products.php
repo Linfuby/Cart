@@ -20,6 +20,11 @@ class Products
         $this->buildProducts($products);
     }
 
+    public function asArray()
+    {
+        return $this->products;
+    }
+
     /**
      * @param int $id
      * @return Products\Product
@@ -49,7 +54,6 @@ class Products
     {
         $this->products = array();
         foreach($products as $product) {
-            echo get_class($product);
             $this->products[] = $this->buildProduct($product);
         }
     }
