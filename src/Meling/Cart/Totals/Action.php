@@ -1,22 +1,22 @@
 <?php
-namespace Meling\Cart\Orders\Order\Totals;
+namespace Meling\Cart\Totals;
 
-class Action implements Totals
+class Action
 {
     /**
-     * @var \Meling\Cart\Orders\Order\Products
+     * @var \Meling\Cart\Products\Product[]
      */
     protected $products;
 
     /**
-     * @var \Meling\Cart\Actions\Action
+     * @var \Parishop\ORMWrappers\Action\Entity
      */
     protected $action;
 
     /**
-     * @var \Meling\Cart\Orders\Order\Totals
+     * @var \Meling\Cart\Cards\Card
      */
-    protected $totals;
+    protected $card;
 
     /**
      * @var int
@@ -25,27 +25,15 @@ class Action implements Totals
 
     /**
      * Action constructor.
-     * @param \Meling\Cart\Orders\Order\Totals             $totals
-     * @param \Meling\Cart\Orders\Order\Products\Product[] $products
-     * @param \Meling\Cart\Actions\Action                  $action
+     * @param \Meling\Cart\Products\Product[]     $products
+     * @param \Parishop\ORMWrappers\Action\Entity $action
+     * @param \Meling\Cart\Cards\Card             $card
      */
-    public function __construct(
-        \Meling\Cart\Orders\Order\Totals $totals,
-        $products,
-        \Meling\Cart\Actions\Action $action)
+    public function __construct(array $products, $action, \Meling\Cart\Cards\Card $card)
     {
-        $this->totals   = $totals;
         $this->products = $products;
         $this->action   = $action;
-    }
-
-    public function add($priceTotal, $discountAction, $percent = true)
-    {
-        if($percent) {
-            $this->total += round($priceTotal / 100 * $discountAction);
-        } else {
-            $this->total += $discountAction;
-        }
+        $this->card     = $card;
     }
 
     public function id()
@@ -66,9 +54,9 @@ class Action implements Totals
     public function total()
     {
         if($this->total === null) {
-            $this->action->type()->total();
-            if($this->total === null) {
-                $this->total = 0;
+            $this->total = 0;
+            if($this->action) {
+                $this->total = $this->action->actionType()->calculate($this->action, $this->card, $this->products);
             }
         }
 

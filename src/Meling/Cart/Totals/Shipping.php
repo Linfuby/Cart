@@ -1,31 +1,33 @@
 <?php
-namespace Meling\Cart\Orders\Order\Totals;
+namespace Meling\Cart\Totals;
 
-class Shipping implements Totals
+class Shipping
 {
     /**
-     * @var \Meling\Cart\Orders\Order\Points\Point
+     * @var \Meling\Cart\Products\Product[]
      */
-    protected $point;
-
-    private   $amount;
+    protected $products;
 
     /**
-     * @var \Meling\Cart\Orders
+     * @var \Meling\Cart\Points
      */
-    private $orders;
+    private $points;
 
+    /**
+     * @var int
+     */
     private $total;
+
 
     /**
      * Shipping constructor.
-     * @param \Meling\Cart\Orders\Order\Points\Point $point
-     * @param \Meling\Cart\Orders                    $orders
+     * @param \Meling\Cart\Points             $points
+     * @param \Meling\Cart\Products\Product[] $products
      */
-    public function __construct($point = null, $orders = null)
+    public function __construct(\Meling\Cart\Points $points, array $products)
     {
-        $this->point  = $point;
-        $this->orders = $orders;
+        $this->products = $products;
+        $this->points   = $points;
     }
 
     public function name()
@@ -38,26 +40,26 @@ class Shipping implements Totals
         $this->total = $total;
     }
 
-    /**
-     * @param mixed $amount
-     */
-    public function setAmount($amount)
-    {
-        $this->amount = $amount;
-    }
-
     public function total()
     {
         if($this->total === null) {
-            if($this->amount !== null && $this->amount >= 10000) {
-                return 0;
-            } elseif($this->orders) {
-                $this->total = 0;
-                foreach($this->orders->asArray() as $order) {
-                    $this->total += $order->totals()->shipping()->total();
+            $this->total = 0;
+            $points      = array();
+            foreach($this->products as $productId => $product) {
+                try {
+                    if($point = $this->points->getFor($productId)->point()) {
+                        $points[$product->pvz] = $point;
+                    }
+                } catch(\Exception $e) {
+                    $product->shopId       = null;
+                    $product->deliveryId   = null;
+                    $product->shopTariffId = null;
+                    $product->addressId    = null;
+                    $product->pvz          = null;
                 }
-            } else {
-                $this->total = $this->point->get()->cost();
+            }
+            foreach($points as $point) {
+                $this->total += $point->cost;
             }
         }
 

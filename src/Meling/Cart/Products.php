@@ -13,16 +13,31 @@ class Products
     protected $products;
 
     /**
-     * @param \Meling\Cart\Providers\Product[] $products
+     * @var \Meling\Cart
      */
-    public function __construct($products)
+    protected $cart;
+
+    /**
+     * @param Products\Product[] $products
+     * @param \Meling\Cart       $cart
+     */
+    public function __construct($products, $cart)
     {
-        $this->buildProducts($products);
+        $this->products = $products;
+        $this->cart     = $cart;
     }
 
+    /**
+     * @return Products\Product[]
+     */
     public function asArray()
     {
         return $this->products;
+    }
+
+    public function count()
+    {
+        return count($this->asArray());
     }
 
     /**
@@ -38,23 +53,42 @@ class Products
         throw new \Exception('Product ' . $id . ' does not exist');
     }
 
-    /**
-     * @param \Meling\Cart\Providers\Product $product
-     * @return Products\Product
-     */
-    protected function buildProduct($product)
+    public function quantity()
     {
-        return new Products\Product($product);
+        $quantity = 0;
+        foreach($this->asArray() as $product) {
+            $quantity += $product->quantity();
+        }
+
+        return $quantity;
     }
 
-    /**
-     * @param \Meling\Cart\Providers\Product[] $products
-     */
-    protected function buildProducts($products)
+    public function remove($id)
     {
-        $this->products = array();
-        foreach($products as $product) {
-            $this->products[] = $this->buildProduct($product);
+        $product = $this->get($id);
+        if($product->entity() instanceof \Parishop\ORMWrappers\Option\Entity) {
+            $this->cart->customer()->removeOption($product->id());
+        } elseif($product->entity() instanceof \Parishop\ORMWrappers\Certificate\Entity) {
+            $this->cart->customer()->removeCertificate($product->id());
+        }
+    }
+
+    public function save()
+    {
+        foreach($this->asArray() as $productId => $product) {
+            if($product->id()) {
+                if($product->entity() instanceof \Parishop\ORMWrappers\Option\Entity) {
+                    $this->cart->customer()->editOption($product->id(), $product->entity()->id(), $product->quantity(), $product->price(), $product->shopId, $product->deliveryId, $product->shopTariffId, $product->addressId, $product->pvz);
+                } elseif($product->entity() instanceof \Parishop\ORMWrappers\Certificate\Entity) {
+                    $this->cart->customer()->editCertificate($product->id(), $product->entity()->id(), $product->quantity(), $product->price(), $product->shopId, $product->deliveryId, $product->shopTariffId, $product->addressId, $product->pvz);
+                }
+            } else {
+                if($product->entity() instanceof \Parishop\ORMWrappers\Option\Entity) {
+                    $this->cart->customer()->addOption($product->entity()->id(), $product->quantity(), $product->price(), $product->shopId, $product->deliveryId, $product->shopTariffId, $product->addressId, $product->pvz);
+                } elseif($product->entity() instanceof \Parishop\ORMWrappers\Certificate\Entity) {
+                    $this->cart->customer()->addCertificate($product->entity()->id(), $product->quantity(), $product->price(), $product->shopId, $product->deliveryId, $product->shopTariffId, $product->addressId, $product->pvz);
+                }
+            }
         }
     }
 

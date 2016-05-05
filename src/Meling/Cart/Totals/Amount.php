@@ -4,7 +4,7 @@ namespace Meling\Cart\Totals;
 class Amount
 {
     /**
-     * @var \Meling\Cart\Products
+     * @var \Meling\Cart\Products\Product[]
      */
     protected $products;
 
@@ -12,9 +12,9 @@ class Amount
 
     /**
      * Amount constructor.
-     * @param \Meling\Cart\Products $products
+     * @param \Meling\Cart\Products\Product[] $products
      */
-    public function __construct(\Meling\Cart\Products $products)
+    public function __construct(array $products)
     {
         $this->products = $products;
     }
@@ -28,11 +28,12 @@ class Amount
     {
         if($this->total === null) {
             $this->total = 0;
-            foreach($this->products->asArray() as $product) {
+            foreach($this->products as $product) {
                 $this->total += $product->priceTotal();
             }
         }
 
         return $this->total;
     }
+
 }

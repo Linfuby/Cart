@@ -7,6 +7,8 @@ namespace Meling\Cart\Cards;
  */
 class Card
 {
+    public $bonuses = 0;
+
     protected $id;
 
     protected $name;

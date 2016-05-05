@@ -8,7 +8,7 @@ namespace Meling\Cart;
 class Actions
 {
     /**
-     * @var \Meling\Tests\ORMWrappers\Entities\AllAction[]
+     * @var \Parishop\ORMWrappers\Action\Entity[]
      */
     protected $actions;
 
@@ -19,17 +19,17 @@ class Actions
 
     /**
      * Actions constructor.
-     * @param \Meling\Tests\ORMWrappers\Entities\AllAction[] $actions
-     * @param mixed                                          $actionId
+     * @param \Parishop\ORMWrappers\Action\Entity[] $actions
+     * @param mixed $actionId
      */
     public function __construct(array $actions, $actionId = null)
     {
-        $this->actions  = $actions;
+        $this->actions = $actions;
         $this->actionId = $actionId;
     }
 
     /**
-     * @return array|\Meling\Tests\ORMWrappers\Entities\AllAction[]
+     * @return \Parishop\ORMWrappers\Action\Entity[]
      */
     public function asArray()
     {
@@ -38,26 +38,26 @@ class Actions
 
     /**
      * @param $id
-     * @return \Meling\Tests\ORMWrappers\Entities\AllAction
+     * @return \Parishop\ORMWrappers\Action\Entity
      * @throws \Exception
      */
     public function get($id)
     {
-        if($id !== false) {
-            if(array_key_exists($id, $this->actions)) {
+        if ($id !== false) {
+            if (array_key_exists($id, $this->actions)) {
                 return $this->actions[$id];
             }
         }
-        throw new \Exception('Action ' . $id . ' does not exist');
+        return null;
     }
 
     /**
-     * @return \Meling\Tests\ORMWrappers\Entities\AllAction
+     * @return \Parishop\ORMWrappers\Action\Entity
      * @throws \Exception
      */
     public function getDefault()
     {
-        if($this->actionId !== null) {
+        if ($this->actionId !== null) {
             return $this->get($this->actionId);
         }
 

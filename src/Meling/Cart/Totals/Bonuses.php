@@ -4,9 +4,9 @@ namespace Meling\Cart\Totals;
 class Bonuses
 {
     /**
-     * @var \Meling\Tests\ORMWrappers\Entities\AllAction[]
+     * @var \Meling\Cart\Cards\Card
      */
-    protected $actions;
+    protected $card;
 
     /**
      * @var int
@@ -14,19 +14,12 @@ class Bonuses
     protected $total;
 
     /**
-     * @var \Meling\Cart\Products\Product[]
-     */
-    protected $products;
-
-    /**
      * Bonuses constructor.
-     * @param \Meling\Tests\ORMWrappers\Entities\AllAction[] $actions
-     * @param \Meling\Cart\Products\Product[]                $products
+     * @param \Meling\Cart\Cards\Card $card
      */
-    public function __construct(array $actions, array $products)
+    public function __construct(\Meling\Cart\Cards\Card $card)
     {
-        $this->actions  = $actions;
-        $this->products = $products;
+        $this->card = $card;
     }
 
     public function name()
@@ -36,14 +29,7 @@ class Bonuses
 
     public function total()
     {
-        if($this->total === null) {
-            $this->total = 0;
-            foreach($this->actions as $action) {
-                $this->total += $action->calculate($this->products);
-            }
-        }
-
-        return $this->total;
+        return $this->card->bonuses;
     }
 
 }

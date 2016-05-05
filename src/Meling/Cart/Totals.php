@@ -8,12 +8,22 @@ namespace Meling\Cart;
 class Totals
 {
     /**
-     * @var Products
+     * @var Products\Product[]
      */
     protected $products;
 
     /**
-     * @var \Meling\Tests\ORMWrappers\Entities\AllAction
+     * @var Points
+     */
+    protected $points;
+
+    /**
+     * @var Actions
+     */
+    protected $actionsAfter;
+
+    /**
+     * @var \Parishop\ORMWrappers\Action\Entity
      */
     protected $action;
 
@@ -27,17 +37,22 @@ class Totals
      */
     protected $instances = array();
 
+
     /**
      * Totals constructor.
-     * @param Products                                     $products
-     * @param \Meling\Tests\ORMWrappers\Entities\AllAction $action
-     * @param Cards\Card                                   $card
+     * @param Products\Product[]                  $products
+     * @param Points                              $points
+     * @param Actions                             $actionsAfter
+     * @param \Parishop\ORMWrappers\Action\Entity $action
+     * @param Cards\Card                          $card
      */
-    public function __construct(Products $products, $action = null, Cards\Card $card)
+    public function __construct(array $products, Points $points, Actions $actionsAfter, $action = null, Cards\Card $card)
     {
-        $this->products = $products;
-        $this->action   = $action;
-        $this->card     = $card;
+        $this->products     = $products;
+        $this->points       = $points;
+        $this->actionsAfter = $actionsAfter;
+        $this->action       = $action;
+        $this->card         = $card;
     }
 
     /**
@@ -76,6 +91,11 @@ class Totals
         return $this->instance('card');
     }
 
+    public function points()
+    {
+        return $this->points;
+    }
+
     /**
      * @return Totals\Shipping
      * @throws \Exception
@@ -96,37 +116,32 @@ class Totals
 
     protected function buildAction()
     {
-        $this->action->setTotals($this);
-
-        return new Totals\Action($this, $this->products, $this->action);
+        return new Totals\Action($this->products, $this->action, $this->card);
     }
 
     protected function buildAmount()
     {
-        return new Totals\Amount($this->products, $this->certificates);
+        return new Totals\Amount($this->products);
     }
 
     protected function buildBonuses()
     {
-        return new Totals\Bonuses($this, $this->actionsAfter);
+        return new Totals\Bonuses($this->card);
     }
 
     protected function buildCard()
     {
-        return new Totals\Card();
+        return new Totals\Card($this->products, $this->action, $this->card);
     }
 
     protected function buildShipping()
     {
-        $shipping = new Totals\Shipping($this->point, $this->orders);
-        $shipping->setAmount($this->amount()->total());
-
-        return $shipping;
+        return new Totals\Shipping($this->points, $this->products);
     }
 
     protected function buildTotal()
     {
-        return new Totals\Total($this);
+        return new Totals\Total($this, $this->products, $this->actionsAfter, $this->card);
     }
 
     protected function instance($name)
