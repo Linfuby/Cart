@@ -246,11 +246,13 @@ class Order extends Provider
     public function removeCertificate($id)
     {
         $this->orm()->query('orderCertificate')->in($id)->delete();
+        unset($this->certificates[$id]);
     }
 
     public function removeOption($id)
     {
         $this->orm()->query('orderProduct')->in($id)->delete();
+        unset($this->options[$id]);
     }
 
 }

@@ -10,21 +10,33 @@ class ActionsTest extends \PHPUnit_Framework_TestCase
 
     public function setUp()
     {
-        $orm = new \Meling\Tests\ORM();
-        /** @var \Meling\Tests\ORMWrappers\Entities\AllAction[] $actions */
-        $actions       = $orm->query('allAction')->where('after', 0)->find(array('actionType'))->asArray(false, 'id');
-        $this->actions = new \Meling\Cart\Actions($actions, '878770256001');
-        $orm->disconnect();
+        $cart          = \Meling\Tests\CartTest::getCartCustomer();
+        $this->actions = $cart->actions();
     }
 
-    public function testAttributeActionId()
+    public function tearDown()
     {
-        $this->assertAttributeEquals('878770256001', 'actionId', $this->actions);
+        \Meling\Tests\CartTest::getFramework()->builder()->components()->database()->get()->disconnect();
     }
 
     public function testAttributeActions()
     {
-        $this->assertAttributeInternalType('array', 'actions', $this->actions);
+        $this->assertAttributeEquals(null, 'actions', $this->actions);
+    }
+
+    public function testAttributeActionsAfter()
+    {
+        $this->assertAttributeEquals(null, 'actionsAfter', $this->actions);
+    }
+
+    public function testAttributeProducts()
+    {
+        $this->assertAttributeInstanceOf('\Meling\Cart\Builder', 'builder', $this->actions);
+    }
+
+    public function testMethodAsAfter()
+    {
+        $this->assertInternalType('array', $this->actions->asAfter());
     }
 
     public function testMethodAsArray()
@@ -34,29 +46,21 @@ class ActionsTest extends \PHPUnit_Framework_TestCase
 
     public function testMethodGet()
     {
-        $this->assertInstanceOf('\Meling\Tests\ORMWrappers\Entities\AllAction', $this->actions->get('878770256001'));
+        foreach($this->actions->asArray() as $action) {
+            $this->assertInstanceOf('\Meling\Cart\Actions\Action', $this->actions->get($action->id()));
+        }
+    }
+
+    public function testMethodGetAfterId()
+    {
+        foreach($this->actions->asAfter() as $action) {
+            $this->assertInstanceOf('\Meling\Cart\Actions\Action', $this->actions->getAfter($action->id()));
+        }
     }
 
     public function testMethodGetDefault()
     {
-        $this->assertInstanceOf('\Meling\Tests\ORMWrappers\Entities\AllAction', $this->actions->getDefault());
-    }
-
-    /**
-     * @expectedException \Exception
-     */
-    public function testMethodGetDefaultNull()
-    {
-        $this->actions = new \Meling\Cart\Actions(array());
-        $this->assertInstanceOf('\Meling\Tests\ORMWrappers\Entities\AllAction', $this->actions->getDefault());
-    }
-
-    /**
-     * @expectedException \Exception
-     */
-    public function testMethodGetException()
-    {
-        $this->assertInternalType('array', $this->actions->get(''));
+        $this->assertInstanceOf('\Meling\Cart\Actions\Action', $this->actions->get());
     }
 
 }

@@ -71,6 +71,8 @@ class Products
         } elseif($product->entity() instanceof \Parishop\ORMWrappers\Certificate\Entity) {
             $this->cart->customer()->removeCertificate($product->id());
         }
+        unset($this->products[$id]);
+        $this->cart->totals(true)->total()->total();
     }
 
     public function save()

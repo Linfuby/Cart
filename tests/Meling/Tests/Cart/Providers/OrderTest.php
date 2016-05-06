@@ -4,67 +4,122 @@ namespace Meling\Tests\Cart\Providers;
 class OrderTest extends \PHPUnit_Framework_TestCase
 {
     /**
-     * @var \Meling\Cart\Providers\Guest
+     * @var \Meling\Cart\Providers\Order
      */
-    protected $providerOrder;
+    protected $order;
+
+    public static function getOrder($id = null, $data = array())
+    {
+        $source = \Meling\Tests\Cart\SourceTest::getSource();
+        $orders = $source->query('order');
+        if($id) {
+            $orders->in($id);
+        }
+        /**
+         * @var \Parishop\ORMWrappers\Order\Entity $order
+         */
+        $order = $orders->findOnePreload();
+        foreach($data as $key => $value) {
+            if(is_array($value)) {
+                foreach($value as $k => $v) {
+                    $order->{$key}()->setField($k, $v);
+                }
+            } else {
+                $order->setField($key, $value);
+            }
+        }
+        $source = \Meling\Tests\Cart\SourceTest::getSource(array(), null, $order->action());
+
+        return new \Meling\Cart\Providers\Order($source, $order);
+    }
 
     public function setUp()
     {
-        $orm     = new \Meling\Tests\ORM();
-        $session = new \Meling\Tests\Session();
-        /** @var \Meling\Tests\ORMWrappers\Entities\Order $order */
-        $order               = $orm->query('order')->in(1)->findOne();
-        $this->providerOrder = new \Meling\Cart\Providers\Order($orm, $session, $order);
-
+        $cart        = \Meling\Tests\CartTest::getCartOrder();
+        $this->order = $cart->builder()->context()->provider();
     }
 
-    public function testAttributeOrm()
+    public function tearDown()
     {
-        $this->assertAttributeInstanceOf('\PHPixie\ORM', 'orm', $this->providerOrder);
-
-        $this->providerOrder->orm()->disconnect();
+        \Meling\Tests\CartTest::getFramework()->builder()->components()->database()->get()->disconnect();
     }
 
-    public function testAttributeSession()
+    public function testAttributeOrder()
     {
-        $this->assertAttributeInstanceOf('\PHPixie\HTTP\Context\Session', 'session', $this->providerOrder);
+        $this->assertAttributeInstanceOf('\Parishop\ORMWrappers\Order\Entity', 'order', $this->order);
+    }
 
-        $this->providerOrder->orm()->disconnect();
+    public function testAttributeSource()
+    {
+        $this->assertAttributeInstanceOf('\Meling\Cart\Source', 'source', $this->order);
+    }
+
+    public function testMethodCards()
+    {
+        $this->assertInternalType('array', $this->order->cards());
     }
 
     public function testMethodCertificates()
     {
-        $this->assertInternalType('array', $this->providerOrder->certificates());
-
-        $this->providerOrder->orm()->disconnect();
+        $this->assertInternalType('array', $this->order->certificates());
     }
 
-    public function testMethodCustomer()
+    public function testMethodDateActual()
     {
-        $this->assertInstanceOf('\Meling\Cart\Providers\Customer', $this->providerOrder->customer());
-
-        $this->providerOrder->orm()->disconnect();
+        $date  = date('Y-m-d H:i:s');
+        $order = $this->getOrder(null, array('created' => $date));
+        $this->assertEquals(new \DateTime($date), $order->dateActual());
     }
 
-    public function testMethodOptions()
+    public function testMethodDateBirthday()
     {
-        $this->assertInternalType('array', $this->providerOrder->options());
-
-        $this->providerOrder->orm()->disconnect();
+        $order = $this->getOrder(null, array('customer' => array('birthday' => null)));
+        $this->assertNull($order->dateBirthday());
+        $order = $this->getOrder(null, array('customer' => array('birthday' => '0000-00-00')));
+        $this->assertNull($order->dateBirthday());
+        $order = $this->getOrder(
+            null, array('customer' => array('birthday' => '1983-03-10', 'birthday_use' => date('Y-m-d')))
+        );
+        $this->assertNull($order->dateBirthday());
+        $order = $this->getOrder(null, array('customer' => array('birthday' => '1983-03-10', 'birthday_use' => null)));
+        $this->assertEquals(new \DateTime('1983-03-10'), $order->dateBirthday());
+        $order = $this->getOrder(
+            null, array('customer' => array('birthday' => '1983-03-10', 'birthday_use' => '2015-03-10'))
+        );
+        $this->assertEquals(new \DateTime('1983-03-10'), $order->dateBirthday());
     }
 
-    public function testMethodOrm()
+    public function testMethodDateMarriage()
     {
-        $this->assertInstanceOf('\PHPixie\ORM', $this->providerOrder->orm());
-
-        $this->providerOrder->orm()->disconnect();
+        $order = $this->getOrder(null, array('customer' => array('marriage' => null)));
+        $this->assertNull($order->dateMarriage());
+        $order = $this->getOrder(null, array('customer' => array('marriage' => '0000-00-00')));
+        $this->assertNull($order->dateMarriage());
+        $order = $this->getOrder(
+            null, array('customer' => array('marriage' => '1983-03-10', 'marriage_use' => date('Y-m-d')))
+        );
+        $this->assertNull($order->dateMarriage());
+        $order = $this->getOrder(null, array('customer' => array('marriage' => '1983-03-10', 'marriage_use' => null)));
+        $this->assertEquals(new \DateTime('1983-03-10'), $order->dateMarriage());
+        $order = $this->getOrder(
+            null, array('customer' => array('marriage' => '1983-03-10', 'marriage_use' => '2015-03-10'))
+        );
+        $this->assertEquals(new \DateTime('1983-03-10'), $order->dateMarriage());
     }
 
-    public function testMethodSession()
+    public function testMethodMagicCall()
     {
-        $this->assertInstanceOf('\PHPixie\HTTP\Context\Session', $this->providerOrder->session());
+        $this->assertInternalType('string', $this->order->name());
+    }
 
-        $this->providerOrder->orm()->disconnect();
+    public function testMethodMagicGet()
+    {
+        $this->assertInternalType('string', $this->order->id);
+    }
+
+    public function testMethodProducts()
+    {
+        $this->assertInternalType('array', $this->order->products());
     }
 
 }

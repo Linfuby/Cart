@@ -10,7 +10,13 @@ class CardTest extends \PHPUnit_Framework_TestCase
 
     public function setUp()
     {
-        $this->card = new \Meling\Cart\Cards\Card('1', 'Number', 10, 100);
+        $cart       = \Meling\Tests\CartTest::getCartCustomer();
+        $this->card = $cart->cards()->get();
+    }
+
+    public function tearDown()
+    {
+        \Meling\Tests\CartTest::getFramework()->builder()->components()->database()->get()->disconnect();
     }
 
     public function testAttributeDiscount()

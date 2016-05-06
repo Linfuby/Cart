@@ -58,7 +58,7 @@ class Customer extends Provider
             $cartCertificate->save();
             $cartCertificate->certificate->set($certificate);
             $this->customer->cartCertificates->add($cartCertificate);
-            $this->certificates[$cartCertificate->id()] = $this->buildProduct(
+            $this->certificates[(string)$cartCertificate->id()] = $this->buildProduct(
                 $cartCertificate->id(),
                 $cartCertificate->certificate(), $quantity, $price, 0, $cartCertificate->certificate()->name,
                 $cartCertificate->certificate()->image, '', $shopId, $deliveryId, $shopTariffId, $addressId, $pvz
@@ -237,11 +237,13 @@ class Customer extends Provider
     public function removeCertificate($id)
     {
         $this->orm()->query('cartCertificate')->in($id)->delete();
+        unset($this->certificates[$id]);
     }
 
     public function removeOption($id)
     {
         $this->orm()->query('cartOption')->in($id)->delete();
+        unset($this->options[$id]);
     }
 
 }

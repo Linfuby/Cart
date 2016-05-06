@@ -6,76 +6,69 @@ class GuestTest extends \PHPUnit_Framework_TestCase
     /**
      * @var \Meling\Cart\Providers\Guest
      */
-    protected $providerGuest;
+    protected $guest;
+
+    public static function getGuest($session = array(), $actionTypeId = null)
+    {
+        $source = \Meling\Tests\Cart\SourceTest::getSource($session, $actionTypeId);
+
+        return new \Meling\Cart\Providers\Guest($source);
+    }
 
     public function setUp()
     {
-        $orm                 = new \Meling\Tests\ORM();
-        $session             = new \Meling\Tests\Session(
-            array(
-                'options'      => array(
-                    array(
-                        'optionId' => '-169235494',
-                    ),
-                ),
-                'certificates' => array(
-                    array(
-                        'certificateId' => '2',
-                    ),
-                ),
-            )
-        );
-        $this->providerGuest = new \Meling\Cart\Providers\Guest($orm, $session);
-
+        $cart        = \Meling\Tests\CartTest::getCartGuest();
+        $this->guest = $cart->builder()->context()->provider();
     }
 
-    public function testAttributeOrm()
+    public function tearDown()
     {
-        $this->assertAttributeInstanceOf('\PHPixie\ORM', 'orm', $this->providerGuest);
-
-        $this->providerGuest->orm()->disconnect();
+        \Meling\Tests\CartTest::getFramework()->builder()->components()->database()->get()->disconnect();
     }
 
-    public function testAttributeSession()
+    public function testAttributeId()
     {
-        $this->assertAttributeInstanceOf('\PHPixie\HTTP\Context\Session', 'session', $this->providerGuest);
+        $this->assertAttributeEquals(0, 'id', $this->guest);
+    }
 
-        $this->providerGuest->orm()->disconnect();
+    public function testAttributeSource()
+    {
+        $this->assertAttributeInstanceOf('\Meling\Cart\Source', 'source', $this->guest);
+    }
+
+    public function testMethodCards()
+    {
+        $this->assertInternalType('array', $this->guest->cards());
     }
 
     public function testMethodCertificates()
     {
-        $this->assertInternalType('array', $this->providerGuest->certificates());
-
-        $this->providerGuest->orm()->disconnect();
+        $this->assertInternalType('array', $this->guest->certificates());
     }
 
-    public function testMethodCustomer()
+    public function testMethodDateActual()
     {
-        $this->assertInstanceOf('\Meling\Cart\Providers\Customer', $this->providerGuest->customer());
-
-        $this->providerGuest->orm()->disconnect();
+        $this->assertEquals(new \DateTime(), $this->guest->dateActual());
     }
 
-    public function testMethodOptions()
+    public function testMethodDateBirthday()
     {
-        $this->assertInternalType('array', $this->providerGuest->options());
-
-        $this->providerGuest->orm()->disconnect();
+        $this->assertNull($this->guest->dateBirthday());
     }
 
-    public function testMethodOrm()
+    public function testMethodDateMarriage()
     {
-        $this->assertInstanceOf('\PHPixie\ORM', $this->providerGuest->orm());
-
-        $this->providerGuest->orm()->disconnect();
+        $this->assertNull($this->guest->dateMarriage());
     }
 
-    public function testMethodSession()
+    public function testMethodId()
     {
-        $this->assertInstanceOf('\PHPixie\HTTP\Context\Session', $this->providerGuest->session());
+        $this->assertEquals(0, $this->guest->id());
+    }
 
-        $this->providerGuest->orm()->disconnect();
+    public function testMethodProducts()
+    {
+        $this->assertInternalType('array', $this->guest->products());
     }
 
 }

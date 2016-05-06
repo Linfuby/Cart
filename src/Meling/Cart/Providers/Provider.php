@@ -132,6 +132,17 @@ abstract class Provider
         );
     }
 
+    /**
+     * @param      $certificateId
+     * @param int  $quantity
+     * @param null $price
+     * @param null $shopId
+     * @param null $deliveryId
+     * @param null $shopTariffId
+     * @param null $addressId
+     * @param null $pvz
+     * @return \Meling\Cart\Products\Product
+     */
     public abstract function addCertificate(
         $certificateId,
         $quantity = 1,
@@ -143,6 +154,17 @@ abstract class Provider
         $pvz = null
     );
 
+    /**
+     * @param      $optionId
+     * @param int  $quantity
+     * @param null $price
+     * @param null $shopId
+     * @param null $deliveryId
+     * @param null $shopTariffId
+     * @param null $addressId
+     * @param null $pvz
+     * @return \Meling\Cart\Products\Product
+     */
     public abstract function addOption(
         $optionId,
         $quantity = 1,

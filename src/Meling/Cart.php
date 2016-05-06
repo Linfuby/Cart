@@ -87,10 +87,15 @@ class Cart
     }
 
     /**
+     * @param bool $reload
      * @return Cart\Totals
      */
-    public function totals()
+    public function totals($reload = false)
     {
+        if($reload) {
+            unset($this->instances['totals']);
+        }
+
         return $this->instance('totals');
     }
 
