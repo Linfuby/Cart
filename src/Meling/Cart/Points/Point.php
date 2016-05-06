@@ -2,71 +2,48 @@
 namespace Meling\Cart\Points;
 
 /**
- * Точка отправления
- * Class Point
+ * Точка Отправления Товара (ТОТ).
+ * Точка Выдачи Товара (ТВТ).
+ * Пункт Выдачи Заказов (ПВЗ).
+ * ТВТ, может быть ПВЗ (Рочничный Магазин), ПВЗ с доставкой (PickPoint, Почта России) или Способ доставки (Курьер, СДЭК)
+ * Interface Point
  * @package Meling\Cart\Points
  */
-class Point
+interface Point
 {
     /**
-     * @var \Meling\Cart\Products\Product
+     * Полное название ТВТ
+     * Магазин: Название Магазина + Адрес Магазина
+     * PickPoint: [Идентификатор ПВЗ] + Адрес ПВЗ
+     * Почта России: Название ТВТ + Название Тарифа
+     * Курьер: Название ТВТ + Название Тарифа
+     * СДЭК: Название ТВТ + Название Тарифа
+     * @return string
      */
-    protected $product;
+    public function fullName();
 
     /**
-     * @var Shops
+     * Идентификатор ТВТ
+     * Магазин: shopId
+     * PickPoint: shopId + deliveryId + shopTariffId
+     * Почта России: shopId + deliveryId + shopTariffId + addressId
+     * Курьер: shopId + deliveryId + shopTariffId + addressId
+     * СДЭК: shopId + deliveryId + shopTariffId + addressId
+     * @return string
      */
-    protected $shops;
+    public function id();
 
     /**
-     * @var Deliveries
+     * Название ТВТ
+     * @return mixed
      */
-    protected $deliveries;
+    public function name();
 
     /**
-     * Point constructor.
-     * @param \Meling\Cart\Products\Product $product
-     * @param Shops                         $shops
-     * @param Deliveries                    $deliveries
-     * @throws \Exception
+     * Количество остатков Товара в ТОТ
+     * @param mixed $productId Идентификатор Товара
+     * @return int Количество остатков Товара
      */
-    public function __construct($product, $shops, $deliveries)
-    {
-        $this->product    = $product;
-        $this->shops      = $shops;
-        $this->deliveries = $deliveries;
-    }
-
-    /**
-     * @return Deliveries
-     */
-    public function deliveries()
-    {
-        return $this->deliveries;
-    }
-
-    /**
-     * @return object
-     * @throws \Exception
-     */
-    public function point()
-    {
-        if($this->product->deliveryId) {
-            return $this->deliveries()->get($this->product->deliveryId);
-        }
-        if($this->product->shopId) {
-            return $this->shops()->get($this->product->shopId);
-        }
-
-        return null;
-    }
-
-    /**
-     * @return Shops
-     */
-    public function shops()
-    {
-        return $this->shops;
-    }
+    public function rests($productId);
 
 }
