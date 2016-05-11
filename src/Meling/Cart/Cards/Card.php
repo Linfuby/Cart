@@ -7,14 +7,34 @@ namespace Meling\Cart\Cards;
  */
 class Card
 {
+    /**
+     * Количество накопленных бонусов на Клубной карте
+     * @var int
+     */
     public $bonuses = 0;
 
+    /**
+     * Идентификатор Клубной карты
+     * @var string
+     */
     protected $id;
 
+    /**
+     * Название Клубной карты
+     * @var string
+     */
     protected $name;
 
+    /**
+     * Скидка по Клубной карте
+     * @var int
+     */
     protected $discount;
 
+    /**
+     * Количество бонусов на Клубной карте
+     * @var int
+     */
     protected $rewards;
 
     /**

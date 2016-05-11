@@ -3,205 +3,88 @@ namespace Meling\Cart\Products;
 
 /**
  * Class Product
- * 1. Название
- * 2. Опция/Сертификат (Интерфейс Товара)
- * 3. Цена
- * 4. Количество
- * 5. Точка Отправки
- * 6. Точка Получения
- * 7. Адрес Получателя
- * 8. Способ доставки
- * 9. Акции
- * 10. Доступные Точки Получения
- * 11. Доступные Тарифы отправления (Необходимо указание города Получения)
  * @package Meling\Cart\Products
  */
-class Product
+abstract class Product
 {
     /**
-     * @var null
+     * @var int
      */
-    public $shopId;
+    protected $id;
 
     /**
-     * @var null
+     * @var \PHPixie\ORM\Wrappers\Type\Database\Entity
      */
-    public $deliveryId;
+    protected $entity;
 
     /**
-     * @var null
+     * @var int
      */
-    public $shopTariffId;
+    protected $quantity;
 
     /**
-     * @var null
+     * @var int
      */
-    public    $addressId;
-
-    public    $pvz;
-
-    protected $priceTotal;
-
-    protected $priceFinal;
-
-    private   $id;
-
-    private   $entity;
-
-    private   $quantity;
-
-    private   $price;
-
-    private   $old_price;
-
-    private   $name;
-
-    private   $image;
-
-    private   $brand;
+    protected $price;
 
     /**
-     * @param      $id
-     * @param      $entity
-     * @param int  $quantity
-     * @param int  $price
-     * @param      $old_price
-     * @param      $name
-     * @param      $image
-     * @param      $brand
-     * @param      $shopId
-     * @param      $deliveryId
-     * @param      $shopTariffId
-     * @param      $addressId
-     * @param      $pvz
+     * @var \Meling\Cart\Points\Point
      */
-    public function __construct(
-        $id,
-        $entity,
-        $quantity,
-        $price,
-        $old_price,
-        $name,
-        $image,
-        $brand,
-        $shopId = null,
-        $deliveryId = null,
-        $shopTariffId = null,
-        $addressId = null,
-        $pvz = null
-    ) {
-        $this->priceFinal   = $this->priceTotal();
-        $this->id           = $id;
-        $this->entity       = $entity;
-        $this->quantity     = $quantity;
-        $this->price        = $price;
-        $this->old_price    = $old_price;
-        $this->name         = $name;
-        $this->image        = $image;
-        $this->brand        = $brand;
-        $this->shopId       = $shopId;
-        $this->deliveryId   = $deliveryId;
-        $this->shopTariffId = $shopTariffId;
-        $this->addressId    = $addressId;
-        $this->pvz          = $pvz;
-        $this->priceTotal   = $this->price * $this->quantity;
-        $this->priceFinal   = $this->price * $this->quantity;
-    }
+    protected $point;
 
-    public function brand()
+    /**
+     * Product constructor.
+     * @param int                       $id
+     * @param int                       $quantity
+     * @param int                       $price
+     * @param \Meling\Cart\Points\Point $point
+     */
+    public function __construct($id, $price, $quantity, $point)
     {
-        return $this->brand;
+        $this->id       = $id;
+        $this->quantity = $quantity;
+        $this->price    = $price;
+        $this->point    = $point;
     }
 
     /**
-     * @return \Parishop\ORMWrappers\Option\Entity|\Parishop\ORMWrappers\Certificate\Entity
+     * @return \PHPixie\ORM\Wrappers\Type\Database\Entity
      */
     public function entity()
     {
         return $this->entity;
     }
 
+    /**
+     * @return int
+     */
     public function id()
     {
         return $this->id;
     }
 
-    public function image()
+    /**
+     * @return \Meling\Cart\Points\Point
+     */
+    public function point()
     {
-        return $this->image;
+        return $this->point;
     }
 
-    public function mainColorName()
-    {
-        if($this->entity() instanceof \Parishop\ORMWrappers\Option\Entity) {
-            return $this->entity()->product()->mainColor()->name();
-        }
-
-        return '';
-    }
-
-    public function name()
-    {
-        return $this->name;
-    }
-
-    public function old_price()
-    {
-        return $this->old_price;
-    }
-
-    public function par()
-    {
-        if($this->entity() instanceof \Parishop\ORMWrappers\Option\Entity) {
-            return $this->entity()->product()->par;
-        }
-
-        return '';
-    }
-
+    /**
+     * @return int
+     */
     public function price()
     {
         return $this->price;
     }
 
-    public function priceFinal($price = null)
-    {
-        if((int)$price) {
-            $this->priceFinal = $this->priceFinal - (int)$price;
-        }
-
-        return $this->priceFinal;
-    }
-
-    public function priceTotal()
-    {
-        return $this->priceTotal;
-    }
-
+    /**
+     * @return int
+     */
     public function quantity()
     {
         return $this->quantity;
-    }
-
-    public function sizeName()
-    {
-        if($this->entity() instanceof \Parishop\ORMWrappers\Option\Entity) {
-            return $this->entity()->sizeName();
-        }
-
-        return '';
-    }
-
-    public function url()
-    {
-        if($this->entity() instanceof \Parishop\ORMWrappers\Option\Entity) {
-            return '/product/' . $this->entity()->product()->par;
-        }
-        if($this->entity() instanceof \Parishop\ORMWrappers\Certificate\Entity) {
-            return '/certificates';
-        }
-
-        return '';
     }
 
 }

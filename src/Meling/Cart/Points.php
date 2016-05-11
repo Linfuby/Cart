@@ -9,9 +9,14 @@ class Points
     protected $products;
 
     /**
-     * @var \Parishop\ORMWrappers\City\Entity
+     * @var \PHPixie\ORM\Wrappers\Type\Database\Entity
      */
     protected $city;
+
+    /**
+     * @var string
+     */
+    protected $addressId;
 
     /**
      * @var Points\Point[]
@@ -20,13 +25,15 @@ class Points
 
     /**
      * Points constructor.
-     * @param Products                          $products
-     * @param \Parishop\ORMWrappers\City\Entity $city
+     * @param Products                                   $products
+     * @param \PHPixie\ORM\Wrappers\Type\Database\Entity $city
+     * @param string                                     $addressId
      */
-    public function __construct(Products $products, \Parishop\ORMWrappers\City\Entity $city)
+    public function __construct(Products $products, \PHPixie\ORM\Wrappers\Type\Database\Entity $city, $addressId = null)
     {
-        $this->products = $products;
-        $this->city     = $city;
+        $this->products  = $products;
+        $this->city      = $city;
+        $this->addressId = $addressId;
     }
 
     public function asArray()
@@ -45,37 +52,14 @@ class Points
         throw new \Exception('Product ' . $id . ' don\'t have Points');
     }
 
-    /**
-     * @param \Parishop\ORMWrappers\City\Entity $city
-     */
-    public function setCity($city)
+    protected function buildDeliveries($shopTariffs)
     {
-        $this->city   = $city;
-        $this->points = null;
+        return new Points\Deliveries($shopTariffs, $this->addressId);
     }
 
-    protected function buildDeliveries($deliveries)
+    protected function buildShops($shops, $rests)
     {
-        return new Points\Deliveries($deliveries);
-    }
-
-    /**
-     * @param \Meling\Cart\Products\Product $product
-     * @param array                         $shops
-     * @param array                         $deliveries
-     * @return Points\Point
-     */
-    protected function buildPoint($product, $shops, $deliveries)
-    {
-        $shops      = $this->buildShops($shops);
-        $deliveries = $this->buildDeliveries($deliveries);
-
-        return new Points\Point($product, $shops, $deliveries);
-    }
-
-    protected function buildShops($shops)
-    {
-        return new Points\Shops($shops);
+        return new Points\Shops($shops, $rests);
     }
 
     protected function requirePoints()
@@ -83,66 +67,9 @@ class Points
         if($this->points !== null) {
             return;
         }
-        $points = array();
-        foreach($this->products->asArray() as $productId => $product) {
-            $shops = $deliveries = array();
-            if($product->entity() instanceof \Parishop\ORMWrappers\Option\Entity) {
-                $restOptions = $product->entity()->restOptions();
-            } elseif($product->entity() instanceof \Parishop\ORMWrappers\Certificate\Entity) {
-                $restOptions = $product->entity()->restCertificates();
-            } else {
-                continue;
-            }
-            foreach($restOptions as $restOption) {
-                if($restOption->shop()->pickup_point) {
-                    if(!array_key_exists($restOption->shopId, $shops)) {
-                        $shops[$restOption->shopId] = (object)array(
-                            'id'    => $restOption->shopId,
-                            'shop'  => $restOption->shop(),
-                            'cost'  => 0,
-                            'rests' => array(),
-                        );
-                    }
-                    if($restOption instanceof \Parishop\ORMWrappers\RestOption\Entity) {
-                        if(!array_key_exists($restOption->optionId, $shops[$restOption->shopId]->rests)) {
-                            $shops[$restOption->shopId]->rests[$restOption->optionId] = $restOption->quantity;
-                        }
-                    } elseif($restOption instanceof \Parishop\ORMWrappers\RestCertificate\Entity) {
-                        if(!array_key_exists($restOption->certificateId, $shops[$restOption->shopId]->rests)) {
-                            $shops[$restOption->shopId]->rests[$restOption->certificateId] = $restOption->quantity;
-                        }
-                    }
-
-                }
-                $deliveryId = null;
-                foreach($restOption->shop()->shopTariffs() as $shopTariff) {
-                    if($shopTariff->success($this->city)) {
-                        $deliveryId = $shopTariff->deliveryId;
-                        if(array_key_exists($deliveryId, $deliveries)) {
-                            continue;
-                        }
-                        $deliveries[$deliveryId] = (object)array(
-                            'id'         => $deliveryId,
-                            'delivery'   => $shopTariff->delivery(),
-                            'shopTariff' => $shopTariff,
-                            'cost'       => $shopTariff->cost,
-                            'rests'      => array(),
-                        );
-                    }
-                }
-                if($deliveryId) {
-                    if($restOption instanceof \Parishop\ORMWrappers\RestOption\Entity) {
-                        if(!array_key_exists($restOption->optionId, $deliveries[$deliveryId]->rests)) {
-                            $deliveries[$deliveryId]->rests[$restOption->optionId] = $restOption->quantity;
-                        }
-                    } elseif($restOption instanceof \Parishop\ORMWrappers\RestCertificate\Entity) {
-                        if(!array_key_exists($restOption->certificateId, $deliveries[$deliveryId]->rests)) {
-                            $deliveries[$deliveryId]->rests[$restOption->certificateId] = $restOption->quantity;
-                        }
-                    }
-                }
-            }
-            $points[$productId] = $this->buildPoint($product, $shops, $deliveries);
+        $points = $shops = $deliveries = array();
+        foreach($this->products->asArray() as $product) {
+            // TODO-Linfuby: Получить остатки Товаров.
         }
         $this->points = $points;
     }

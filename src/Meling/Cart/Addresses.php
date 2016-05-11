@@ -4,27 +4,27 @@ namespace Meling\Cart;
 class Addresses
 {
     /**
-     * @var \Parishop\ORMWrappers\Address\Entity[]
+     * @var \PHPixie\ORM\Wrappers\Type\Database\Entity[]
      */
     protected $addresses;
     /**
-     * @var \Parishop\ORMWrappers\Address\Entity
+     * @var \PHPixie\ORM\Wrappers\Type\Database\Entity
      */
     protected $address;
 
     /**
      * Addresses constructor.
-     * @param \Parishop\ORMWrappers\Address\Entity[] $addresses
-     * @param \Parishop\ORMWrappers\Address\Entity $address
+     * @param \PHPixie\ORM\Wrappers\Type\Database\Entity[] $addresses
+     * @param \PHPixie\ORM\Wrappers\Type\Database\Entity $address
      */
-    public function __construct(array $addresses, \Parishop\ORMWrappers\Address\Entity $address = null)
+    public function __construct(array $addresses, \PHPixie\ORM\Wrappers\Type\Database\Entity $address = null)
     {
         $this->addresses = $addresses;
         $this->address = $address;
     }
 
     /**
-     * @return \Parishop\ORMWrappers\Address\Entity[]
+     * @return \PHPixie\ORM\Wrappers\Type\Database\Entity[]
      */
     public function asArray()
     {
@@ -33,7 +33,7 @@ class Addresses
 
     /**
      * @param $id
-     * @return \Parishop\ORMWrappers\Address\Entity
+     * @return \PHPixie\ORM\Wrappers\Type\Database\Entity
      * @throws \Exception
      */
     public function get($id = null)

@@ -23,7 +23,7 @@ class Card
     /**
      * Card constructor.
      * @param \Meling\Cart\Products\Product[]     $products
-     * @param \Parishop\ORMWrappers\Action\Entity $action
+     * @param \PHPixie\ORM\Wrappers\Type\Database\Entity $action
      * @param \Meling\Cart\Cards\Card             $card
      */
     public function __construct(array $products, $action, \Meling\Cart\Cards\Card $card)
@@ -50,7 +50,7 @@ class Card
             if(!$this->action || $this->action->with_card) {
                 if($this->card->discount()) {
                     foreach($this->products as $product) {
-                        if($product->entity() instanceof \Parishop\ORMWrappers\Option\Entity) {
+                        if($product->entity() instanceof \PHPixie\ORM\Wrappers\Type\Database\Entity) {
                             if($product->entity()->specialSuccess(0)) {
                                 $discount = round($product->priceFinal() / 100 * $this->card->discount());
                                 $this->total += $discount;

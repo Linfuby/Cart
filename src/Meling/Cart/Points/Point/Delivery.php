@@ -6,13 +6,43 @@ class Delivery extends \Meling\Cart\Points\Point\Implementation
     /**
      * Implementation constructor.
      * @param \PHPixie\ORM\Wrappers\Type\Database\Entity $shop
-     * @param \PHPixie\ORM\Wrappers\Type\Database\Entity $delivery
      * @param \PHPixie\ORM\Wrappers\Type\Database\Entity $shopTariff
-     * @param \PHPixie\ORM\Wrappers\Type\Database\Entity $address
+     * @param string                                     $deliveryName
+     * @param string                                     $addressId
      */
-    public function __construct($shop, $delivery, $shopTariff, $address)
+    public function __construct($shop, $shopTariff, $deliveryName, $addressId = null)
     {
-        parent::__construct($shop->id() . $delivery->id() . $shopTariff->id() . $address->id(), $delivery->getRequiredField('name'), $shopTariff->getRequiredField('name'), array());
+        parent::__construct(
+            $shop->id() . $shopTariff->id() . $addressId,
+            $deliveryName,
+            $shopTariff->getRequiredField('name'), array()
+        );
     }
+
+    public function addressId()
+    {
+        // TODO: Implement addressId() method.
+    }
+
+    public function deliveryId()
+    {
+        // TODO: Implement deliveryId() method.
+    }
+
+    public function pvz()
+    {
+        // TODO: Implement pvz() method.
+    }
+
+    public function shopId()
+    {
+        // TODO: Implement shopId() method.
+    }
+
+    public function shopTariffId()
+    {
+        // TODO: Implement shopTariffId() method.
+    }
+
 
 }

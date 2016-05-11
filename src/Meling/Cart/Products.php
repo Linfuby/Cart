@@ -5,26 +5,98 @@ namespace Meling\Cart;
  * Class Products
  * @package Meling\Cart
  */
-class Products
+class Products extends \ArrayObject
 {
     /**
-     * @var Products\Product[]
+     * @var int
      */
-    protected $products;
+    protected $quantity;
 
     /**
-     * @var \Meling\Cart
+     * @var Providers\Provider
      */
-    protected $cart;
+    protected $provider;
 
     /**
-     * @param Products\Product[] $products
-     * @param \Meling\Cart       $cart
+     * @var Providers\Options
      */
-    public function __construct($products, $cart)
+    protected $options;
+
+    /**
+     * @var Providers\Certificates
+     */
+    protected $certificates;
+
+    /**
+     * @param Providers\Provider     $provider
+     * @param Providers\Options      $options
+     * @param Providers\Certificates $certificates
+     * @param array                  $products
+     */
+    public function __construct(Providers\Provider $provider, Providers\Options $options, Providers\Certificates $certificates, array $products = array())
     {
-        $this->products = $products;
-        $this->cart     = $cart;
+        $this->provider     = $provider;
+        $this->options      = $options;
+        $this->certificates = $certificates;
+        parent::__construct($products);
+    }
+
+    /**
+     * @param string       $id
+     * @param string       $certificateId
+     * @param int          $price
+     * @param int          $quantity
+     * @param Points\Point $point
+     */
+    public function addCertificate($id, $certificateId, $price, $quantity = 1, $point = null)
+    {
+        $shopId       = null;
+        $deliveryId   = null;
+        $shopTariffId = null;
+        $addressId    = null;
+        $pvz          = null;
+        if($point instanceof \Meling\Cart\Points\Point) {
+            $shopId       = $point->shopId();
+            $deliveryId   = $point->deliveryId();
+            $shopTariffId = $point->shopTariffId();
+            $addressId    = $point->addressId();
+            $pvz          = $point->pvz();
+        }
+        if($this->certificates->offsetExists($id)) {
+            $certificate = $this->certificates->offsetGet($id);
+            $this->certificates->edit($id, $price, $quantity + $certificate->quantity, $shopId, $deliveryId, $shopTariffId, $addressId, $pvz);
+        } else {
+            $this->certificates->add($certificateId, $price, $quantity, $shopId, $deliveryId, $shopTariffId, $addressId, $pvz);
+        }
+    }
+
+    /**
+     * @param string       $id
+     * @param string       $optionId
+     * @param int          $price
+     * @param int          $quantity
+     * @param Points\Point $point
+     */
+    public function addOption($id, $optionId, $price, $quantity = 1, $point = null)
+    {
+        $shopId       = null;
+        $deliveryId   = null;
+        $shopTariffId = null;
+        $addressId    = null;
+        $pvz          = null;
+        if($point instanceof \Meling\Cart\Points\Point) {
+            $shopId       = $point->shopId();
+            $deliveryId   = $point->deliveryId();
+            $shopTariffId = $point->shopTariffId();
+            $addressId    = $point->addressId();
+            $pvz          = $point->pvz();
+        }
+        if($this->options->offsetExists($id)) {
+            $option = $this->options->offsetGet($id);
+            $this->options->edit($id, $price, $quantity + $option->quantity, $shopId, $deliveryId, $shopTariffId, $addressId, $pvz);
+        } else {
+            $this->options->add($optionId, $price, $quantity, $shopId, $deliveryId, $shopTariffId, $addressId, $pvz);
+        }
     }
 
     /**
@@ -32,66 +104,63 @@ class Products
      */
     public function asArray()
     {
-        return $this->products;
-    }
-
-    public function count()
-    {
-        return count($this->asArray());
+        return $this->getIterator();
     }
 
     /**
-     * @param int $id
+     * @param $id
      * @return Products\Product
-     * @throws \Exception
      */
     public function get($id)
     {
-        if(array_key_exists($id, $this->products)) {
-            return $this->products[$id];
-        }
-        throw new \Exception('Product ' . $id . ' does not exist');
+        return $this->offsetGet($id);
+    }
+
+    /**
+     * @return \Meling\Cart\Providers\Provider
+     */
+    public function provider()
+    {
+        return $this->provider;
     }
 
     public function quantity()
     {
-        $quantity = 0;
-        foreach($this->asArray() as $product) {
-            $quantity += $product->quantity();
-        }
-
-        return $quantity;
-    }
-
-    public function remove($id)
-    {
-        $product = $this->get($id);
-        if($product->entity() instanceof \Parishop\ORMWrappers\Option\Entity) {
-            $this->cart->customer()->removeOption($product->id());
-        } elseif($product->entity() instanceof \Parishop\ORMWrappers\Certificate\Entity) {
-            $this->cart->customer()->removeCertificate($product->id());
-        }
-        unset($this->products[$id]);
-        $this->cart->totals(true)->total()->total();
-    }
-
-    public function save()
-    {
-        foreach($this->asArray() as $productId => $product) {
-            if($product->id()) {
-                if($product->entity() instanceof \Parishop\ORMWrappers\Option\Entity) {
-                    $this->cart->customer()->editOption($product->id(), $product->entity()->id(), $product->quantity(), $product->price(), $product->shopId, $product->deliveryId, $product->shopTariffId, $product->addressId, $product->pvz);
-                } elseif($product->entity() instanceof \Parishop\ORMWrappers\Certificate\Entity) {
-                    $this->cart->customer()->editCertificate($product->id(), $product->entity()->id(), $product->quantity(), $product->price(), $product->shopId, $product->deliveryId, $product->shopTariffId, $product->addressId, $product->pvz);
-                }
-            } else {
-                if($product->entity() instanceof \Parishop\ORMWrappers\Option\Entity) {
-                    $this->cart->customer()->addOption($product->entity()->id(), $product->quantity(), $product->price(), $product->shopId, $product->deliveryId, $product->shopTariffId, $product->addressId, $product->pvz);
-                } elseif($product->entity() instanceof \Parishop\ORMWrappers\Certificate\Entity) {
-                    $this->cart->customer()->addCertificate($product->entity()->id(), $product->quantity(), $product->price(), $product->shopId, $product->deliveryId, $product->shopTariffId, $product->addressId, $product->pvz);
-                }
+        if($this->quantity === null) {
+            $this->quantity = 0;
+            foreach($this->asArray() as $product) {
+                $this->quantity += $product->quantity();
             }
         }
+
+        return $this->quantity;
+    }
+
+    /**
+     * @param string $id
+     */
+    public function removeCertificate($id)
+    {
+        $this->certificates->remove($id);
+        $this->offsetUnset($id);
+    }
+
+    /**
+     * @param string $id
+     */
+    public function removeOption($id)
+    {
+        $this->options->remove($id);
+        $this->offsetUnset($id);
+    }
+
+    public function totals()
+    {
+        if($this->totals === null) {
+            $this->totals = new Totals($this, $this->actions, $this->card, $this->action);
+        }
+
+        return $this->totals;
     }
 
 }

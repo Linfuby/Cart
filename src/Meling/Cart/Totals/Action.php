@@ -9,7 +9,7 @@ class Action
     protected $products;
 
     /**
-     * @var \Parishop\ORMWrappers\Action\Entity
+     * @var \PHPixie\ORM\Wrappers\Type\Database\Entity
      */
     protected $action;
 
@@ -26,7 +26,7 @@ class Action
     /**
      * Action constructor.
      * @param \Meling\Cart\Products\Product[]     $products
-     * @param \Parishop\ORMWrappers\Action\Entity $action
+     * @param \PHPixie\ORM\Wrappers\Type\Database\Entity $action
      * @param \Meling\Cart\Cards\Card             $card
      */
     public function __construct(array $products, $action, \Meling\Cart\Cards\Card $card)

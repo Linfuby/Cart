@@ -8,14 +8,9 @@ namespace Meling\Cart;
 class Totals
 {
     /**
-     * @var Products\Product[]
+     * @var Products
      */
     protected $products;
-
-    /**
-     * @var Points
-     */
-    protected $points;
 
     /**
      * @var Actions
@@ -23,14 +18,14 @@ class Totals
     protected $actionsAfter;
 
     /**
-     * @var \Parishop\ORMWrappers\Action\Entity
-     */
-    protected $action;
-
-    /**
      * @var Cards\Card
      */
     protected $card;
+
+    /**
+     * @var \PHPixie\ORM\Wrappers\Type\Database\Entity
+     */
+    protected $action;
 
     /**
      * @var array
@@ -40,19 +35,17 @@ class Totals
 
     /**
      * Totals constructor.
-     * @param Products\Product[]                  $products
-     * @param Points                              $points
-     * @param Actions                             $actionsAfter
-     * @param \Parishop\ORMWrappers\Action\Entity $action
-     * @param Cards\Card                          $card
+     * @param Products                                   $products
+     * @param Actions                                    $actionsAfter
+     * @param Cards\Card                                 $card
+     * @param \PHPixie\ORM\Wrappers\Type\Database\Entity $action
      */
-    public function __construct(array $products, Points $points, Actions $actionsAfter, $action = null, Cards\Card $card)
+    public function __construct(Products $products, Actions $actionsAfter, Cards\Card $card, $action = null)
     {
         $this->products     = $products;
-        $this->points       = $points;
         $this->actionsAfter = $actionsAfter;
-        $this->action       = $action;
         $this->card         = $card;
+        $this->action       = $action;
     }
 
     /**
@@ -89,11 +82,6 @@ class Totals
     public function card()
     {
         return $this->instance('card');
-    }
-
-    public function points()
-    {
-        return $this->points;
     }
 
     /**

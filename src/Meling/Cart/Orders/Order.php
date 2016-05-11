@@ -3,107 +3,56 @@ namespace Meling\Cart\Orders;
 
 class Order
 {
+    /**
+     * @var string
+     */
     protected $id;
 
-    protected $name;
-
     /**
-     * @var \Meling\Cart\Products\Product[]
+     * @var \Meling\Cart\Products
      */
     protected $products;
 
     /**
-     * @var \Meling\Cart\Totals
+     * @var \Meling\Cart\Points\Point
      */
-    protected $totals;
+    protected $point;
 
     /**
      * Order constructor.
-     * @param                                 $id
-     * @param                                 $name
-     * @param \Meling\Cart\Products\Product[] $products
-     * @param \Meling\Cart\Totals             $totals
+     * @param string                    $id
+     * @param \Meling\Cart\Products     $products
+     * @param \Meling\Cart\Points\Point $point
      */
-    public function __construct($id, $name, array $products, \Meling\Cart\Totals $totals)
+    public function __construct($id, $products, \Meling\Cart\Points\Point $point)
     {
         $this->id       = $id;
-        $this->name     = $name;
+        $this->point    = $point;
         $this->products = $products;
-        $this->totals   = $totals;
     }
 
-    public function addressId()
-    {
-        return $this->product()->addressId;
-    }
-
-    public function deliveryId()
-    {
-        return $this->product()->deliveryId;
-    }
-
+    /**
+     * @return string
+     */
     public function id()
     {
         return $this->id;
     }
 
-    public function name()
-    {
-        return $this->name;
-    }
-
-    public function payments()
-    {
-        return array();
-    }
-
+    /**
+     * @return \Meling\Cart\Points\Point
+     */
     public function point()
     {
-        return $this->totals()->points()->getFor(0);
+        return $this->point;
     }
 
     /**
-     * @return \Meling\Cart\Products\Product[]
+     * @return \Meling\Cart\Products
      */
     public function products()
     {
         return $this->products;
-    }
-
-    public function pvz()
-    {
-        return $this->product()->pvz;
-    }
-
-    /**
-     * @return \Parishop\ORMWrappers\Shop\Entity
-     */
-    public function shop()
-    {
-        return $this->point()->shops()->get($this->shopId())->shop;
-    }
-
-    public function shopId()
-    {
-        return $this->product()->shopId;
-    }
-
-    public function shopTariffId()
-    {
-        return $this->product()->shopTariffId;
-    }
-
-    public function totals()
-    {
-        return $this->totals;
-    }
-
-    /**
-     * @return \Meling\Cart\Products\Product
-     */
-    protected function product()
-    {
-        return current($this->products());
     }
 
 }

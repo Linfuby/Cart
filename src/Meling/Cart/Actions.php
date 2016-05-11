@@ -5,13 +5,8 @@ namespace Meling\Cart;
  * Class Actions
  * @package Meling\Cart
  */
-class Actions
+class Actions extends \ArrayObject
 {
-    /**
-     * @var \Parishop\ORMWrappers\Action\Entity[]
-     */
-    protected $actions;
-
     /**
      * @var mixed
      */
@@ -19,49 +14,37 @@ class Actions
 
     /**
      * Actions constructor.
-     * @param \Parishop\ORMWrappers\Action\Entity[] $actions
+     * @param array $actions
      * @param mixed $actionId
      */
-    public function __construct(array $actions, $actionId = null)
+    public function __construct($actions, $actionId = null)
     {
-        $this->actions = $actions;
+        parent::__construct($actions);
         $this->actionId = $actionId;
     }
 
     /**
-     * @return \Parishop\ORMWrappers\Action\Entity[]
+     * @return \PHPixie\ORM\Wrappers\Type\Database\Entity[]
      */
     public function asArray()
     {
-        return $this->actions;
+        return $this->getIterator();
     }
 
     /**
      * @param $id
-     * @return \Parishop\ORMWrappers\Action\Entity
-     * @throws \Exception
+     * @return \PHPixie\ORM\Wrappers\Type\Database\Entity
      */
-    public function get($id)
+    public function get($id = null)
     {
-        if ($id !== false) {
-            if (array_key_exists($id, $this->actions)) {
-                return $this->actions[$id];
-            }
+        if($id === null) {
+            $id = $this->actionId;
         }
-        return null;
-    }
-
-    /**
-     * @return \Parishop\ORMWrappers\Action\Entity
-     * @throws \Exception
-     */
-    public function getDefault()
-    {
-        if ($this->actionId !== null) {
-            return $this->get($this->actionId);
+        if($this->offsetExists($id)) {
+            return $this->offsetGet($id);
         }
 
-        return $this->get(current(array_keys($this->actions)));
+        return new Actions\Action();
     }
 
 }

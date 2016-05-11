@@ -11,6 +11,10 @@ namespace Meling\Cart\Points;
  */
 interface Point
 {
+    public function addressId();
+
+    public function deliveryId();
+
     /**
      * Полное название ТВТ
      * Магазин: Название Магазина + Адрес Магазина
@@ -39,11 +43,17 @@ interface Point
      */
     public function name();
 
+    public function pvz();
+
     /**
      * Количество остатков Товара в ТОТ
      * @param mixed $productId Идентификатор Товара
      * @return int Количество остатков Товара
      */
     public function rests($productId);
+
+    public function shopId();
+
+    public function shopTariffId();
 
 }

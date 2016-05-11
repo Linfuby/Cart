@@ -1,107 +1,55 @@
 <?php
 namespace Meling\Cart;
 
-class Orders
+/**
+ * Class Orders
+ * @method Orders\Order offsetGet($index)
+ * @package Meling\Cart
+ */
+class Orders extends \ArrayObject
 {
+    /**
+     * @var Orders\Order[]
+     */
+    protected $orders;
+
     /**
      * @var Products
      */
     protected $products;
 
     /**
-     * @var Points\Point[]
+     * Orders constructor.
+     * @param Products $products
      */
-    protected $points;
-
-    /**
-     * @var Orders\Order[]
-     */
-    protected $orders;
-
-    private   $action;
-
-    private   $card;
-
-    /**
-     * Points constructor.
-     * @param Products\Product[]                  $products
-     * @param Points                              $points
-     * @param \Meling\Cart\Actions                $actions
-     * @param \Parishop\ORMWrappers\Action\Entity $action
-     * @param \Meling\Cart\Cards\Card             $card
-     */
-    public function __construct(array $products, Points $points, $actions, $action, $card)
+    public function __construct(Products $products)
     {
-        $this->products = $products;
-        $this->points   = $points;
-        $this->actions  = $actions;
-        $this->action   = $action;
-        $this->card     = $card;
+        foreach($products->asArray() as $product) {
+            if($product->point()->id()) {
+                if(!$this->offsetExists($product->point()->id())) {
+                    $this->offsetSet($product->point()->id(), $this->buildOrder($product->point()->id(), new Products($this->provider), $product->point()));
+                }
+                $this->offsetGet($product->point()->id())->products()->append($product);
+            }
+        }
     }
 
+    /**
+     * @return Orders\Order[]
+     */
     public function asArray()
     {
-        $this->requireOrders();
-
-        return $this->orders;
-    }
-
-    public function count()
-    {
-        $this->requireOrders();
-
-        return count($this->orders);
+        return $this->getIterator();
     }
 
     public function get($id)
     {
-        $this->requireOrders();
-        if(array_key_exists($id, $this->orders)) {
-            return $this->orders[$id];
-        }
-        throw new \Exception('Order ' . $id . ' does not exist');
+        return $this->offsetGet($id);
     }
 
-    /**
-     * @param int $id
-     * @param     $name
-     * @param     $products
-     * @return Orders\Order
-     */
-    protected function buildOrder($id, $name, $products)
+    protected function buildOrder($id, $products, $point)
     {
-        return new Orders\Order($id, $name, $products, $this->buildTotals($products));
+        return new Orders\Order($id, $products, $point);
     }
 
-    protected function buildTotals($products)
-    {
-        return new \Meling\Cart\Totals($products, $this->points, $this->actions, $this->action, $this->card);
-    }
-
-    protected function requireOrders()
-    {
-        if($this->orders !== null) {
-            return;
-        }
-        $orders = array();
-        $points = array();
-        foreach($this->products as $productId => $product) {
-            try {
-                if($point = $this->points->getFor($productId)->point()) {
-                    $points[$product->pvz][$productId] = $product;
-                }
-            } catch(\Exception $e) {
-                $product->shopId       = null;
-                $product->deliveryId   = null;
-                $product->shopTariffId = null;
-                $product->addressId    = null;
-                $product->pvz          = null;
-            }
-
-        }
-        foreach($points as $name => $products) {
-            $orders[] = $this->buildOrder(count($orders), $name, $products);
-        }
-        $this->orders = $orders;
-    }
 }
