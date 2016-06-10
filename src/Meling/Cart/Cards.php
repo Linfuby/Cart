@@ -16,15 +16,15 @@ class Cards
     /**
      * @var array|\Iterator
      */
-    protected $cardEntities;
+    protected $entities;
 
     /**
      * Cards constructor.
-     * @param array|\Iterator $cardEntities
+     * @param array|\Iterator $entities
      */
-    public function __construct($cardEntities)
+    public function __construct(array $entities = array())
     {
-        $this->cardEntities = $cardEntities;
+        $this->entities = $entities;
     }
 
     /**
@@ -44,9 +44,11 @@ class Cards
     public function get($id = null)
     {
         $this->requireCards();
-        if($id !== null)
-            if(array_key_exists($id, $this->cards))
+        if($id !== null) {
+            if(array_key_exists($id, $this->cards)) {
                 return $this->cards[$id];
+            }
+        }
 
         return $this->card;
     }
@@ -62,7 +64,7 @@ class Cards
             return;
         }
         $cards = array();
-        foreach($this->cardEntities as $card) {
+        foreach($this->entities as $card) {
             $discount = 0;
             $card     = $this->buildCard($card->id, $card->name, $card->discount, $card->rewards);
             if($card->discount() >= $discount) {

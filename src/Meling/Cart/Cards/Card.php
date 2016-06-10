@@ -5,7 +5,7 @@ namespace Meling\Cart\Cards;
  * Class Card
  * @package Meling\Cart\Cards
  */
-class Card
+class Card implements Implementation
 {
     /**
      * Количество накопленных бонусов на Клубной карте
@@ -46,8 +46,8 @@ class Card
      */
     public function __construct($id = null, $name = null, $discount = null, $rewards = null)
     {
-        $this->id       = $id;
-        $this->name     = $name;
+        $this->id       = (string)$id;
+        $this->name     = (string)$name;
         $this->discount = (int)$discount;
         $this->rewards  = (int)$rewards;
     }

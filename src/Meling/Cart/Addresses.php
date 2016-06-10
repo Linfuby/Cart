@@ -1,51 +1,56 @@
 <?php
 namespace Meling\Cart;
 
-class Addresses
+class Addresses extends \ArrayObject
 {
     /**
-     * @var \PHPixie\ORM\Wrappers\Type\Database\Entity[]
-     */
-    protected $addresses;
-    /**
-     * @var \PHPixie\ORM\Wrappers\Type\Database\Entity
+     * @var \Parishop\ORMWrappers\Address\Entity
      */
     protected $address;
 
     /**
      * Addresses constructor.
-     * @param \PHPixie\ORM\Wrappers\Type\Database\Entity[] $addresses
-     * @param \PHPixie\ORM\Wrappers\Type\Database\Entity $address
+     * @param \Parishop\ORMWrappers\Address\Entity[] $addresses
+     * @param \Parishop\ORMWrappers\Address\Entity   $address
      */
-    public function __construct(array $addresses, \PHPixie\ORM\Wrappers\Type\Database\Entity $address = null)
+    public function __construct(array $addresses, \Parishop\ORMWrappers\Address\Entity $address = null)
     {
-        $this->addresses = $addresses;
+        parent::__construct($addresses);
         $this->address = $address;
     }
 
     /**
-     * @return \PHPixie\ORM\Wrappers\Type\Database\Entity[]
+     * @param \Parishop\ORMWrappers\Address\Entity $address
+     */
+    public function add($address)
+    {
+        $this->offsetSet($address->id(), $address);
+    }
+
+    /**
+     * @return \Parishop\ORMWrappers\Address\Entity[]
      */
     public function asArray()
     {
-        return $this->addresses;
+        return $this->getIterator();
     }
 
     /**
      * @param $id
-     * @return \PHPixie\ORM\Wrappers\Type\Database\Entity
+     * @return \Parishop\ORMWrappers\Address\Entity
      * @throws \Exception
      */
     public function get($id = null)
     {
-        if ($id === null) {
-            if ($this->address === null) {
-                return current($this->addresses);
+        if(!$id) {
+            if($this->address === null) {
+                return $this->getIterator()->current();
             }
+
             return $this->address;
         }
-        if (array_key_exists($id, $this->addresses)) {
-            return $this->addresses[$id];
+        if($this->offsetExists($id)) {
+            return $this->offsetGet($id);
         }
         throw new \Exception("Address '$id' does not exist");
     }

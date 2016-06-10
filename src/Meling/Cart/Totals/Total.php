@@ -9,7 +9,7 @@ class Total
     protected $totals;
 
     /**
-     * @var \Meling\Cart\Products\Product[]
+     * @var \Meling\Cart\Products
      */
     protected $products;
 
@@ -30,10 +30,10 @@ class Total
 
     /**
      * Total constructor.
-     * @param \Meling\Cart\Totals             $totals
-     * @param \Meling\Cart\Products\Product[] $products
-     * @param \Meling\Cart\Actions            $actionsAfter
-     * @param \Meling\Cart\Cards\Card         $card
+     * @param \Meling\Cart\Totals     $totals
+     * @param \Meling\Cart\Products   $products
+     * @param \Meling\Cart\Actions    $actionsAfter
+     * @param \Meling\Cart\Cards\Card $card
      */
     public function __construct($totals, $products, $actionsAfter, $card)
     {
@@ -53,7 +53,7 @@ class Total
         if($this->total === null) {
             $this->total = ($this->totals->amount()->total() + $this->totals->shipping()->total()) - ($this->totals->action()->total() + $this->totals->card()->total());
             foreach($this->actionsAfter->asArray() as $action) {
-                $this->total -= $action->actionType()->calculate($action, $this->card, $this->products);
+                $this->total -= $action->calculate($this->card, $this->products);
             }
         }
 

@@ -4,44 +4,55 @@ namespace Meling\Cart\Points\Point;
 class Delivery extends \Meling\Cart\Points\Point\Implementation
 {
     /**
-     * Implementation constructor.
-     * @param \PHPixie\ORM\Wrappers\Type\Database\Entity $shop
-     * @param \PHPixie\ORM\Wrappers\Type\Database\Entity $shopTariff
-     * @param string                                     $deliveryName
-     * @param string                                     $addressId
+     * @var string
      */
-    public function __construct($shop, $shopTariff, $deliveryName, $addressId = null)
+    public $alias;
+
+    /**
+     * @var \Parishop\ORMWrappers\Shop\Entity
+     */
+    protected $shop;
+
+    /**
+     * @var \Parishop\ORMWrappers\ShopTariff\Entity
+     */
+    protected $shopTariff;
+
+    /**
+     * Implementation constructor.
+     * @param string                                  $id
+     * @param string                                  $name
+     * @param string                                  $alias
+     * @param \Parishop\ORMWrappers\Shop\Entity       $shop
+     * @param \Parishop\ORMWrappers\ShopTariff\Entity $shopTariff
+     * @param string                                  $cityId
+     */
+    public function __construct($id, $name, $alias, $shop, $shopTariff, $cityId = null)
     {
-        parent::__construct(
-            $shop->id() . $shopTariff->id() . $addressId,
-            $deliveryName,
-            $shopTariff->getRequiredField('name'), array()
-        );
+        parent::__construct($id, $name, $cityId);
+        $this->alias      = $alias;
+        $this->shop       = $shop;
+        $this->shopTariff = $shopTariff;
     }
 
-    public function addressId()
+    public function cost()
     {
-        // TODO: Implement addressId() method.
+        return $this->shopTariff->cost;
     }
 
-    public function deliveryId()
+    public function delivery()
     {
-        // TODO: Implement deliveryId() method.
+        return $this->shopTariff->delivery();
     }
 
-    public function pvz()
+    public function shop()
     {
-        // TODO: Implement pvz() method.
+        return $this->shop;
     }
 
-    public function shopId()
+    public function shopTariff()
     {
-        // TODO: Implement shopId() method.
-    }
-
-    public function shopTariffId()
-    {
-        // TODO: Implement shopTariffId() method.
+        return $this->shopTariff;
     }
 
 

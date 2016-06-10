@@ -4,12 +4,12 @@ namespace Meling\Cart\Totals;
 class Action
 {
     /**
-     * @var \Meling\Cart\Products\Product[]
+     * @var \Meling\Cart\Products
      */
     protected $products;
 
     /**
-     * @var \PHPixie\ORM\Wrappers\Type\Database\Entity
+     * @var \Meling\Cart\Actions\Action
      */
     protected $action;
 
@@ -25,11 +25,11 @@ class Action
 
     /**
      * Action constructor.
-     * @param \Meling\Cart\Products\Product[]     $products
-     * @param \PHPixie\ORM\Wrappers\Type\Database\Entity $action
-     * @param \Meling\Cart\Cards\Card             $card
+     * @param \Meling\Cart\Products       $products
+     * @param \Meling\Cart\Actions\Action $action
+     * @param \Meling\Cart\Cards\Card     $card
      */
-    public function __construct(array $products, $action, \Meling\Cart\Cards\Card $card)
+    public function __construct($products, $action, \Meling\Cart\Cards\Card $card)
     {
         $this->products = $products;
         $this->action   = $action;
@@ -38,7 +38,7 @@ class Action
 
     public function id()
     {
-        return $this->action ? $this->action->id() : null;
+        return $this->action->id();
     }
 
     public function name()
@@ -55,9 +55,7 @@ class Action
     {
         if($this->total === null) {
             $this->total = 0;
-            if($this->action) {
-                $this->total = $this->action->actionType()->calculate($this->action, $this->card, $this->products);
-            }
+            $this->total = $this->action->calculate($this->card, $this->products);
         }
 
         return $this->total;

@@ -8,7 +8,7 @@ namespace Meling\Cart\Providers;
 class Order extends Provider
 {
     /**
-     * @var \PHPixie\ORM\Wrappers\Type\Database\Entity
+     * @var \Parishop\ORMWrappers\Order\Entity
      */
     protected $order;
 
@@ -73,8 +73,8 @@ class Order extends Provider
 
     public function addresses()
     {
-        if($this->addresses = null) {
-            $this->addresses = new \Meling\Cart\Addresses($this->order->customer()->addresses());
+        if($this->addresses === null) {
+            $this->addresses = new \Meling\Cart\Addresses($this->order->customer()->addresses()->asArray());
         }
 
         return $this->addresses;
@@ -82,11 +82,21 @@ class Order extends Provider
 
     public function cards()
     {
-        if($this->cards = null) {
-            $this->cards = new \Meling\Cart\Cards($this->order->customer()->customerCards());
+        if($this->cards === null) {
+            $this->cards = new \Meling\Cart\Cards($this->order->customer()->customerCards()->asArray());
         }
 
         return $this->cards;
+    }
+
+    public function city($cityId = null)
+    {
+        return $this->order->city();
+    }
+
+    public function customer()
+    {
+        return $this->order->customer();
     }
 
     public function email()
@@ -114,9 +124,19 @@ class Order extends Provider
         return $this->order->getRequiredField('middlename');
     }
 
+    public function order()
+    {
+        return $this->order;
+    }
+
     public function phone()
     {
         return $this->order->getRequiredField('phone');
+    }
+
+    public function shop()
+    {
+        return $this->order->shop();
     }
 
 }

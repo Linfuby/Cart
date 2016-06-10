@@ -1,6 +1,8 @@
 <?php
 namespace Meling;
 
+use Meling\Cart\Points;
+
 /**
  * Class Cart
  * @package Meling
@@ -18,21 +20,21 @@ class Cart
     protected $provider;
 
     /**
-     * @var Cart\Providers\Options
+     * @var Cart\Providers\Products
      */
     protected $options;
 
     /**
-     * @var Cart\Providers\Certificates
+     * @var Cart\Providers\Products
      */
     protected $certificates;
 
     /**
-     * @param Cart\Providers\Provider     $provider
-     * @param Cart\Providers\Options      $options
-     * @param Cart\Providers\Certificates $certificates
+     * @param Cart\Providers\Provider $provider
+     * @param Cart\Providers\Products $options
+     * @param Cart\Providers\Products $certificates
      */
-    public function __construct(Cart\Providers\Provider $provider, Cart\Providers\Options $options, Cart\Providers\Certificates $certificates)
+    public function __construct(Cart\Providers\Provider $provider, Cart\Providers\Products $options, Cart\Providers\Products $certificates)
     {
         $this->provider     = $provider;
         $this->options      = $options;
@@ -72,11 +74,27 @@ class Cart
     }
 
     /**
+     * @return Cart\Customer
+     */
+    public function customer()
+    {
+        return $this->instance('customer');
+    }
+
+    /**
      * @return Cart\Orders
      */
     public function orders()
     {
         return $this->instance('orders');
+    }
+
+    /**
+     * @return Cart\Points
+     */
+    public function points()
+    {
+        return $this->instance('points');
     }
 
     /**
@@ -87,35 +105,62 @@ class Cart
         return $this->instance('products');
     }
 
-    protected function buildCertificate($id, $certificate, $price, $quantity = 1, $point = null)
+    /**
+     * @return Cart\Providers\Order
+     */
+    public function providerOrder()
     {
-        return new \Meling\Cart\Products\Certificate($id, $certificate, $price, $quantity, $point);
+        return $this->provider;
     }
 
-    protected function buildOption($id, $option, $price, $quantity = 1, $point = null)
+    /**
+     * @return Cart\Totals
+     */
+    public function totals()
     {
-        return new \Meling\Cart\Products\Option($id, $option, $price, $quantity, $point);
+        return $this->products()->totals();
+    }
+
+    protected function buildCustomer()
+    {
+        $customer = $this->provider->customer();
+        if($customer) {
+            return new Cart\Customer($customer->id(), $customer->lastname, $customer->firstname, $customer->middlename, $customer->email, $customer->phone);
+        }
+
+        return new Cart\Customer();
     }
 
     protected function buildOrders()
     {
-        return new Cart\Orders($this->products());
+        return new Cart\Orders($this->provider, $this->buildProducts(), $this->buildPoints(), $this->options, $this->certificates);
+    }
+
+    protected function buildPoints()
+    {
+        $addressId = null;
+        if($addresses = $this->addresses()->asArray()) {
+            $address = current($addresses);
+            if($address) {
+                $addressId = $address->id();
+            }
+        }
+
+        return new Cart\Points($this, $this->provider->city(), $this->addresses(), $addressId);
     }
 
     protected function buildProducts()
     {
         $products = array();
         foreach($this->options->asArray() as $option) {
-            $pointId               = $option->shopId . $option->shopTariffId . $option->addressId;
-            $products[$option->id] = $this->buildOption($option->id, $option->option, $option->price, $option->quantity, $pointId);
+            $products[(string)$option->optionId] = $this->provider->buildOption($option, $this->points());
         }
 
         foreach($this->certificates->asArray() as $certificate) {
-            $pointId                    = $certificate->shopId . $certificate->shopTariffId . $certificate->addressId;
-            $products[$certificate->id] = $this->buildCertificate($certificate->id, $certificate->certificate, $certificate->price, $certificate->quantity, $pointId);
+            $products[(string)$certificate->certificateId] = $this->provider->buildCertificate($certificate, $this->points());
         }
 
-        return new Cart\Products($this->provider, $products);
+        return new Cart\Products($this->provider, $this->points(), $this->options, $this->certificates, $products);
     }
 
     protected function instance($name)

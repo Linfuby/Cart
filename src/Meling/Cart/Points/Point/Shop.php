@@ -4,38 +4,66 @@ namespace Meling\Cart\Points\Point;
 class Shop extends \Meling\Cart\Points\Point\Implementation
 {
     /**
-     * Implementation constructor.
-     * @param \PHPixie\ORM\Wrappers\Type\Database\Entity   $shop
-     * @param \PHPixie\ORM\Wrappers\Type\Database\Entity[] $rests
+     * @var string
      */
-    public function __construct($shop, $rests)
+    protected $phone;
+
+    /**
+     * @var string
+     */
+    protected $work_times;
+
+    /**
+     * @var string
+     */
+    protected $street;
+
+    /**
+     * Implementation constructor.
+     * @param string                            $id
+     * @param string                            $name
+     * @param \Parishop\ORMWrappers\City\Entity $city
+     * @param string                            $phone
+     * @param string                            $street
+     * @param string                            $work_times
+     * @param string                            $cityId
+     */
+    public function __construct($id, $name, $city, $phone, $street, $work_times, $cityId = null)
     {
-        parent::__construct($shop->id(), $shop->getRequiredField('name'), $shop->getRequiredField('street'), $rests);
+        parent::__construct($id, $name, $cityId);
+        $this->city       = $city;
+        $this->phone      = $phone;
+        $this->street     = $street;
+        $this->work_times = $work_times;
     }
 
-    public function addressId()
+    public function city()
     {
-        return null;
+        return $this->city;
     }
 
-    public function deliveryId()
+    /**
+     * @return string
+     */
+    public function phone()
     {
-        return null;
+        return $this->phone;
     }
 
-    public function pvz()
+    /**
+     * @return string
+     */
+    public function street()
     {
-        // TODO: Implement pvz() method.
+        return $this->street;
     }
 
-    public function shopId()
+    /**
+     * @return string
+     */
+    public function work_times()
     {
-        return $this->id();
-    }
-
-    public function shopTariffId()
-    {
-        return null;
+        return $this->work_times;
     }
 
 

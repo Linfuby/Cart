@@ -8,7 +8,7 @@ namespace Meling\Cart\Providers;
 class Customer extends Provider
 {
     /**
-     * @var \PHPixie\ORM\Wrappers\Type\Database\Entity
+     * @var \Parishop\ORMWrappers\Customer\Entity
      */
     protected $customer;
 
@@ -73,8 +73,8 @@ class Customer extends Provider
 
     public function addresses()
     {
-        if($this->addresses = null) {
-            $this->addresses = new \Meling\Cart\Addresses($this->customer->addresses());
+        if($this->addresses === null) {
+            $this->addresses = new \Meling\Cart\Addresses($this->customer->addresses()->asArray(false, 'id'));
         }
 
         return $this->addresses;
@@ -82,11 +82,16 @@ class Customer extends Provider
 
     public function cards()
     {
-        if($this->cards = null) {
-            $this->cards = new \Meling\Cart\Cards($this->customer->customerCards());
+        if($this->cards === null) {
+            $this->cards = new \Meling\Cart\Cards($this->customer->customerCards()->asArray(false, 'id'));
         }
 
         return $this->cards;
+    }
+
+    public function customer()
+    {
+        return $this->customer;
     }
 
     public function email()

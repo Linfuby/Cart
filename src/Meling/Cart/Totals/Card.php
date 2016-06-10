@@ -4,12 +4,12 @@ namespace Meling\Cart\Totals;
 class Card
 {
     /**
-     * @var \Meling\Cart\Products\Product[]
+     * @var \Meling\Cart\Products
      */
     protected $products;
 
     /**
-     * @var \Meling\Cart\Cards\Card
+     * @var \Meling\Cart\Actions\Action
      */
     protected $action;
 
@@ -22,11 +22,11 @@ class Card
 
     /**
      * Card constructor.
-     * @param \Meling\Cart\Products\Product[]     $products
-     * @param \PHPixie\ORM\Wrappers\Type\Database\Entity $action
-     * @param \Meling\Cart\Cards\Card             $card
+     * @param \Meling\Cart\Products       $products
+     * @param \Meling\Cart\Actions\Action $action
+     * @param \Meling\Cart\Cards\Card     $card
      */
-    public function __construct(array $products, $action, \Meling\Cart\Cards\Card $card)
+    public function __construct($products, $action, \Meling\Cart\Cards\Card $card)
     {
         $this->products = $products;
         $this->action   = $action;
@@ -47,11 +47,11 @@ class Card
     {
         if($this->total === null) {
             $this->total = 0;
-            if(!$this->action || $this->action->with_card) {
+            if(!$this->action || $this->action->useCard()) {
                 if($this->card->discount()) {
                     foreach($this->products as $product) {
-                        if($product->entity() instanceof \PHPixie\ORM\Wrappers\Type\Database\Entity) {
-                            if($product->entity()->specialSuccess(0)) {
+                        if($product instanceof \Meling\Cart\Products\Option) {
+                            if($product->option()->specialSuccess(0)) {
                                 $discount = round($product->priceFinal() / 100 * $this->card->discount());
                                 $this->total += $discount;
                                 $product->priceFinal($discount);

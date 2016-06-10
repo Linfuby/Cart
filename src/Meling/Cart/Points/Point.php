@@ -11,20 +11,7 @@ namespace Meling\Cart\Points;
  */
 interface Point
 {
-    public function addressId();
-
-    public function deliveryId();
-
-    /**
-     * Полное название ТВТ
-     * Магазин: Название Магазина + Адрес Магазина
-     * PickPoint: [Идентификатор ПВЗ] + Адрес ПВЗ
-     * Почта России: Название ТВТ + Название Тарифа
-     * Курьер: Название ТВТ + Название Тарифа
-     * СДЭК: Название ТВТ + Название Тарифа
-     * @return string
-     */
-    public function fullName();
+    public function cost();
 
     /**
      * Идентификатор ТВТ
@@ -39,21 +26,14 @@ interface Point
 
     /**
      * Название ТВТ
-     * @return mixed
+     * @return string
      */
     public function name();
 
-    public function pvz();
-
     /**
      * Количество остатков Товара в ТОТ
-     * @param mixed $productId Идентификатор Товара
      * @return int Количество остатков Товара
      */
-    public function rests($productId);
-
-    public function shopId();
-
-    public function shopTariffId();
+    public function rests();
 
 }

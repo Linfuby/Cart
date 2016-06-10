@@ -8,95 +8,129 @@ namespace Meling\Cart;
 class Products extends \ArrayObject
 {
     /**
-     * @var int
-     */
-    protected $quantity;
-
-    /**
      * @var Providers\Provider
      */
     protected $provider;
 
     /**
-     * @var Providers\Options
+     * @var Providers\Products
      */
     protected $options;
 
     /**
-     * @var Providers\Certificates
+     * @var Providers\Products
      */
     protected $certificates;
 
     /**
-     * @param Providers\Provider     $provider
-     * @param Providers\Options      $options
-     * @param Providers\Certificates $certificates
-     * @param array                  $products
+     * @var int
      */
-    public function __construct(Providers\Provider $provider, Providers\Options $options, Providers\Certificates $certificates, array $products = array())
+    protected $quantity;
+
+    /**
+     * @var Totals
+     */
+    protected $totals;
+
+    /**
+     * @var Points
+     */
+    private $points;
+
+    /**
+     * @param Providers\Provider $provider
+     * @param Points             $points
+     * @param Providers\Products $options
+     * @param Providers\Products $certificates
+     * @param array              $products
+     */
+    public function __construct(Providers\Provider $provider, Points $points, Providers\Products $options, Providers\Products $certificates, array $products = array())
     {
         $this->provider     = $provider;
+        $this->points       = $points;
         $this->options      = $options;
         $this->certificates = $certificates;
         parent::__construct($products);
     }
 
     /**
-     * @param string       $id
-     * @param string       $certificateId
-     * @param int          $price
-     * @param int          $quantity
-     * @param Points\Point $point
+     * @param string $id
+     * @param string $certificateId
+     * @param int    $quantity
+     * @param int    $price
+     * @param string $pointId
+     * @param string $shopId
+     * @param string $shopTariffId
+     * @param string $cityId
+     * @param string $addressId
+     * @param string $pvz
+     * @return Products\Certificate
+     * @throws \Exception
      */
-    public function addCertificate($id, $certificateId, $price, $quantity = 1, $point = null)
+    public function addCertificate($id, $certificateId, $quantity = 1, $price = null, $pointId = null, $shopId = null, $shopTariffId = null, $cityId = null, $addressId = null, $pvz = null)
     {
-        $shopId       = null;
-        $deliveryId   = null;
-        $shopTariffId = null;
-        $addressId    = null;
-        $pvz          = null;
-        if($point instanceof \Meling\Cart\Points\Point) {
-            $shopId       = $point->shopId();
-            $deliveryId   = $point->deliveryId();
-            $shopTariffId = $point->shopTariffId();
-            $addressId    = $point->addressId();
-            $pvz          = $point->pvz();
+        if($pointId) {
+            try {
+                $this->points->get($pointId);
+            } catch(\Exception $e) {
+                $pointId = null;
+            }
         }
         if($this->certificates->offsetExists($id)) {
             $certificate = $this->certificates->offsetGet($id);
-            $this->certificates->edit($id, $price, $quantity + $certificate->quantity, $shopId, $deliveryId, $shopTariffId, $addressId, $pvz);
+            $certificate = $this->certificates->edit($id, $quantity + $certificate->quantity, $pointId, $shopId, $shopTariffId, $cityId, $addressId, $pvz);
         } else {
-            $this->certificates->add($certificateId, $price, $quantity, $shopId, $deliveryId, $shopTariffId, $addressId, $pvz);
+            if($price === null) {
+                $certificate = $this->provider->loadCertificate($certificateId);
+                $price       = $certificate->price;
+            }
+            $certificate = $this->certificates->add($certificateId, $quantity, $price, $pointId, $shopId, $shopTariffId, $cityId, $addressId, $pvz);
         }
+        $product = $this->provider->buildCertificate($certificate, $this->points);
+        $this->offsetSet($certificateId, $product);
+
+        return $product;
     }
 
     /**
-     * @param string       $id
-     * @param string       $optionId
-     * @param int          $price
-     * @param int          $quantity
-     * @param Points\Point $point
+     * @param string $id
+     * @param string $optionId
+     * @param int    $quantity
+     * @param int    $price
+     * @param string $pointId
+     * @param string $shopId
+     * @param string $shopTariffId
+     * @param string $cityId
+     * @param string $addressId
+     * @param string $pvz
+     * @return Products\Option
+     * @throws \Exception
      */
-    public function addOption($id, $optionId, $price, $quantity = 1, $point = null)
+    public function addOption($id, $optionId, $quantity = 1, $price = null, $pointId = null, $shopId = null, $shopTariffId = null, $cityId = null, $addressId = null, $pvz = null)
     {
-        $shopId       = null;
-        $deliveryId   = null;
-        $shopTariffId = null;
-        $addressId    = null;
-        $pvz          = null;
-        if($point instanceof \Meling\Cart\Points\Point) {
-            $shopId       = $point->shopId();
-            $deliveryId   = $point->deliveryId();
-            $shopTariffId = $point->shopTariffId();
-            $addressId    = $point->addressId();
-            $pvz          = $point->pvz();
+        if($pointId) {
+            try {
+                $this->points->get($pointId);
+            } catch(\Exception $e) {
+                $pointId = null;
+            }
         }
         if($this->options->offsetExists($id)) {
             $option = $this->options->offsetGet($id);
-            $this->options->edit($id, $price, $quantity + $option->quantity, $shopId, $deliveryId, $shopTariffId, $addressId, $pvz);
+
+            $option = $this->options->edit($id, $quantity + $option->quantity, $pointId, $shopId, $shopTariffId, $cityId, $addressId, $pvz);
         } else {
-            $this->options->add($optionId, $price, $quantity, $shopId, $deliveryId, $shopTariffId, $addressId, $pvz);
+            if($price === null) {
+                $option = $this->provider->loadOption($optionId);
+                $price  = $option->price;
+            }
+
+            $option = $this->options->add($optionId, $quantity, $price, $pointId, $shopId, $shopTariffId, $cityId, $addressId, $pvz);
         }
+        $product = $this->provider->buildOption($option, $this->points);
+        $this->offsetSet($optionId, $product);
+
+        return $product;
     }
 
     /**
@@ -105,6 +139,12 @@ class Products extends \ArrayObject
     public function asArray()
     {
         return $this->getIterator();
+    }
+
+    public function clear()
+    {
+        $this->options->clear();
+        $this->certificates->clear();
     }
 
     /**
@@ -157,7 +197,7 @@ class Products extends \ArrayObject
     public function totals()
     {
         if($this->totals === null) {
-            $this->totals = new Totals($this, $this->actions, $this->card, $this->action);
+            $this->totals = new Totals($this, $this->provider->actionsAfter(), $this->provider->cards()->get(), $this->provider->actions()->get());
         }
 
         return $this->totals;

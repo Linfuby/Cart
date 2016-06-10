@@ -33,7 +33,7 @@ class Session extends Provider
 
     public function addresses()
     {
-        if($this->addresses = null) {
+        if($this->addresses === null) {
             $this->addresses = new \Meling\Cart\Addresses(array());
         }
 
@@ -45,11 +45,16 @@ class Session extends Provider
      */
     public function cards()
     {
-        if($this->cards = null) {
+        if($this->cards === null) {
             $this->cards = new \Meling\Cart\Cards(array());
         }
 
         return $this->cards;
+    }
+
+    public function customer()
+    {
+        return null;
     }
 
     public function email()

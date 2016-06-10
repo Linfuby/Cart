@@ -35,12 +35,12 @@ class Totals
 
     /**
      * Totals constructor.
-     * @param Products                                   $products
-     * @param Actions                                    $actionsAfter
-     * @param Cards\Card                                 $card
-     * @param \PHPixie\ORM\Wrappers\Type\Database\Entity $action
+     * @param Products       $products
+     * @param Actions        $actionsAfter
+     * @param Cards\Card     $card
+     * @param Actions\Action $action
      */
-    public function __construct(Products $products, Actions $actionsAfter, Cards\Card $card, $action = null)
+    public function __construct(Products $products, Actions $actionsAfter, Cards\Card $card, Actions\Action $action)
     {
         $this->products     = $products;
         $this->actionsAfter = $actionsAfter;
@@ -124,7 +124,7 @@ class Totals
 
     protected function buildShipping()
     {
-        return new Totals\Shipping($this->points, $this->products);
+        return new Totals\Shipping($this->amount(), $this->products);
     }
 
     protected function buildTotal()

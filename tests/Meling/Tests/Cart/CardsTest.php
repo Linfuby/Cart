@@ -10,18 +10,12 @@ class CardsTest extends \PHPUnit_Framework_TestCase
 
     public function setUp()
     {
-        $cart        = \Meling\Tests\CartTest::getCartCustomer();
-        $this->cards = new \Meling\Cart\Cards($cart->builder()->context()->cards());
-    }
-
-    public function tearDown()
-    {
-        \Meling\Tests\CartTest::getFramework()->builder()->components()->database()->get()->disconnect();
+        $this->cards = new \Meling\Cart\Cards();
     }
 
     public function testAttributeBuilder()
     {
-        $this->assertAttributeInstanceOf('\Meling\Cart\Builder', 'builder', $this->cards);
+        $this->assertAttributeInternalType('array', 'entities', $this->cards);
     }
 
     public function testMethodAsArray()

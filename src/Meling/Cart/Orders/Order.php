@@ -19,16 +19,23 @@ class Order
     protected $point;
 
     /**
+     * @var string
+     */
+    protected $pvz;
+
+    /**
      * Order constructor.
      * @param string                    $id
      * @param \Meling\Cart\Products     $products
      * @param \Meling\Cart\Points\Point $point
+     * @param string                    $pvz
      */
-    public function __construct($id, $products, \Meling\Cart\Points\Point $point)
+    public function __construct($id, $products, \Meling\Cart\Points\Point $point, $pvz = null)
     {
         $this->id       = $id;
         $this->point    = $point;
         $this->products = $products;
+        $this->pvz      = $pvz;
     }
 
     /**
@@ -39,8 +46,21 @@ class Order
         return $this->id;
     }
 
+    public function name()
+    {
+        $point = $this->point();
+        if($point instanceof \Meling\Cart\Points\Point\Shop) {
+            return $point->name() . '. ' . $point->street();
+        }
+        if($point instanceof \Meling\Cart\Points\Point\Delivery) {
+            return $point->name() . '. ' . $this->pvz;
+        }
+
+        return null;
+    }
+
     /**
-     * @return \Meling\Cart\Points\Point
+     * @return \Meling\Cart\Points\Point\Shop|\Meling\Cart\Points\Point\Delivery
      */
     public function point()
     {

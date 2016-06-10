@@ -1,8 +1,13 @@
 <?php
 namespace Meling\Cart\Points\Point;
 
-abstract class Implementation implements \Meling\Cart\Points\Point
+abstract class Implementation extends \ArrayObject implements \Meling\Cart\Points\Point
 {
+    /**
+     * @var string
+     */
+    public $cityId;
+
     /**
      * @var string
      */
@@ -14,40 +19,26 @@ abstract class Implementation implements \Meling\Cart\Points\Point
     protected $name;
 
     /**
-     * @var string
-     */
-    protected $tariffName;
-
-    /**
-     * @var \PHPixie\ORM\Wrappers\Type\Database\Entity[]
-     */
-    protected $rests = array();
-
-    /**
      * Implementation constructor.
-     * @param string                                       $id
-     * @param string                                       $name
-     * @param string                                       $tariffName
-     * @param \PHPixie\ORM\Wrappers\Type\Database\Entity[] $rests
+     * @param string $id
+     * @param string $name
+     * @param string $cityId
      */
-    public function __construct($id, $name, $tariffName, $rests)
+    public function __construct($id, $name, $cityId)
     {
-        $this->id         = $id;
-        $this->name       = $name;
-        $this->tariffName = $tariffName;
-        $this->rests      = $rests;
+        parent::__construct(array());
+        $this->id     = $id;
+        $this->name   = $name;
+        $this->cityId = $cityId;
+    }
+
+    public function cost()
+    {
+        return 0;
     }
 
     /**
-     * @inheritdoc
-     */
-    public function fullName()
-    {
-        return $this->name . ' (' . $this->tariffName . ')';
-    }
-
-    /**
-     * @inheritdoc
+     * @return string
      */
     public function id()
     {
@@ -55,7 +46,7 @@ abstract class Implementation implements \Meling\Cart\Points\Point
     }
 
     /**
-     * @inheritdoc
+     * @return string
      */
     public function name()
     {
@@ -63,15 +54,11 @@ abstract class Implementation implements \Meling\Cart\Points\Point
     }
 
     /**
-     * @inheritdoc
+     * @return \ArrayIterator
      */
-    public function rests($productId)
+    public function rests()
     {
-        if(array_key_exists($productId, $this->rests)) {
-            return $this->rests[$productId]->getRequiredField('quantity');
-        }
-
-        return 0;
+        return $this->getIterator();
     }
 
 }
