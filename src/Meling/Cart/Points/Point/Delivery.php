@@ -1,38 +1,47 @@
 <?php
 namespace Meling\Cart\Points\Point;
 
-class Delivery extends \Meling\Cart\Points\Point\Implementation
+/**
+ * Class Delivery
+ * @property string deliveryId
+ * @property string shopId
+ * @package Meling\Cart\Points\Point
+ */
+class Delivery extends \Meling\Cart\Points\Point
 {
-    /**
-     * @var string
-     */
-    public $alias;
+    public    $shopTariffId;
 
-    /**
-     * @var \Parishop\ORMWrappers\Shop\Entity
-     */
-    protected $shop;
+    /** @var \Parishop\ORMWrappers\Delivery\Entity */
+    protected $delivery;
 
-    /**
-     * @var \Parishop\ORMWrappers\ShopTariff\Entity
-     */
+    /** @var \Parishop\ORMWrappers\ShopTariff\Entity */
     protected $shopTariff;
 
     /**
-     * Implementation constructor.
-     * @param string                                  $id
-     * @param string                                  $name
-     * @param string                                  $alias
-     * @param \Parishop\ORMWrappers\Shop\Entity       $shop
+     * Delivery constructor.
+     * @param mixed                                   $id
      * @param \Parishop\ORMWrappers\ShopTariff\Entity $shopTariff
-     * @param string                                  $cityId
      */
-    public function __construct($id, $name, $alias, $shop, $shopTariff, $cityId = null)
+    public function __construct($id, \Parishop\ORMWrappers\ShopTariff\Entity $shopTariff)
     {
-        parent::__construct($id, $name, $cityId);
-        $this->alias      = $alias;
-        $this->shop       = $shop;
-        $this->shopTariff = $shopTariff;
+        parent::__construct($id);
+        $this->delivery     = $shopTariff->delivery();
+        $this->shopTariff   = $shopTariff;
+        $this->shopTariffId = $shopTariff->id();
+    }
+
+    /**
+     * @param string $name
+     * @return string
+     */
+    function __get($name)
+    {
+        return $this->shopTariff->{$name};
+    }
+
+    public function alias()
+    {
+        return $this->delivery->alias;
     }
 
     public function cost()
@@ -40,20 +49,24 @@ class Delivery extends \Meling\Cart\Points\Point\Implementation
         return $this->shopTariff->cost;
     }
 
-    public function delivery()
+    public function name()
     {
-        return $this->shopTariff->delivery();
+        return $this->delivery->name();
     }
 
-    public function shop()
+    public function nameCity()
     {
-        return $this->shop;
+        return $this->delivery->name() . ' (' . $this->shopTariff->name() . ')';
+    }
+
+    public function nameFull()
+    {
+        return $this->nameCity();
     }
 
     public function shopTariff()
     {
-        return $this->shopTariff;
     }
 
-
 }
+

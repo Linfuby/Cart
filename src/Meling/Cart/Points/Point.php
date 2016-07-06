@@ -2,38 +2,35 @@
 namespace Meling\Cart\Points;
 
 /**
- * Точка Отправления Товара (ТОТ).
- * Точка Выдачи Товара (ТВТ).
- * Пункт Выдачи Заказов (ПВЗ).
- * ТВТ, может быть ПВЗ (Рочничный Магазин), ПВЗ с доставкой (PickPoint, Почта России) или Способ доставки (Курьер, СДЭК)
+ * Точка Отправления Товара
  * Interface Point
  * @package Meling\Cart\Points
  */
-interface Point
+abstract class Point
 {
-    public function cost();
+    /** @var mixed */
+    protected $id;
 
     /**
-     * Идентификатор ТВТ
-     * Магазин: shopId
-     * PickPoint: shopId + deliveryId + shopTariffId
-     * Почта России: shopId + deliveryId + shopTariffId + addressId
-     * Курьер: shopId + deliveryId + shopTariffId + addressId
-     * СДЭК: shopId + deliveryId + shopTariffId + addressId
-     * @return string
+     * Point constructor.
+     * @param mixed $id
      */
-    public function id();
+    public function __construct($id)
+    {
+        $this->id = $id;
+    }
 
-    /**
-     * Название ТВТ
-     * @return string
-     */
-    public function name();
+    public function id()
+    {
+        return $this->id;
+    }
 
-    /**
-     * Количество остатков Товара в ТОТ
-     * @return int Количество остатков Товара
-     */
-    public function rests();
+    public abstract function cost();
 
+    public abstract function name();
+
+    public abstract function nameCity();
+
+    public abstract function nameFull();
 }
+

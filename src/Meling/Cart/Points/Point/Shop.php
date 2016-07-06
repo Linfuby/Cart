@@ -1,70 +1,77 @@
 <?php
 namespace Meling\Cart\Points\Point;
 
-class Shop extends \Meling\Cart\Points\Point\Implementation
+/**
+ * Class Shop
+ * @property string street
+ * @property string work_times
+ * @property string phone
+ * @package Meling\Cart\Points\Point
+ */
+class Shop extends \Meling\Cart\Points\Point
 {
-    /**
-     * @var string
-     */
-    protected $phone;
+    /** @var \Parishop\ORMWrappers\Shop\Entity */
+    protected $shop;
+
+    /** @var Products */
+    protected $products;
 
     /**
-     * @var string
-     */
-    protected $work_times;
-
-    /**
-     * @var string
-     */
-    protected $street;
-
-    /**
-     * Implementation constructor.
+     * Shop constructor.
      * @param string                            $id
-     * @param string                            $name
-     * @param \Parishop\ORMWrappers\City\Entity $city
-     * @param string                            $phone
-     * @param string                            $street
-     * @param string                            $work_times
-     * @param string                            $cityId
+     * @param \Parishop\ORMWrappers\Shop\Entity $shop
      */
-    public function __construct($id, $name, $city, $phone, $street, $work_times, $cityId = null)
+    public function __construct($id, $shop)
     {
-        parent::__construct($id, $name, $cityId);
-        $this->city       = $city;
-        $this->phone      = $phone;
-        $this->street     = $street;
-        $this->work_times = $work_times;
-    }
-
-    public function city()
-    {
-        return $this->city;
+        parent::__construct($id);
+        $this->shop     = $shop;
+        $this->products = new Products(array());
     }
 
     /**
-     * @return string
+     * @param string $name
+     * @param array  $arguments
+     * @return mixed
      */
-    public function phone()
+    function __call($name, $arguments)
     {
-        return $this->phone;
+        return call_user_func_array(array($this->shop, $name), $arguments);
     }
 
     /**
+     * @param string $name
      * @return string
      */
-    public function street()
+    function __get($name)
     {
-        return $this->street;
+        return $this->shop->{$name};
     }
 
-    /**
-     * @return string
-     */
-    public function work_times()
+    public function cost()
     {
-        return $this->work_times;
+        return 0;
+    }
+
+    public function name()
+    {
+        return $this->shop->name();
+    }
+
+    public function nameCity()
+    {
+        return $this->shop->name() . ' (' . $this->shop->city()->name() . ')';
+    }
+
+    public function nameFull()
+    {
+        return $this->shop->name() . ' (' . $this->shop->street . ')';
+    }
+
+    public function products()
+    {
+        return $this->products;
     }
 
 
 }
+

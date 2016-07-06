@@ -5,130 +5,102 @@ namespace Meling\Cart;
  * Class Products
  * @package Meling\Cart
  */
-class Products extends \ArrayObject
+abstract class Products extends \ArrayObject
 {
-    /**
-     * @var Providers\Provider
-     */
+    /** @var Providers\Provider */
     protected $provider;
 
-    /**
-     * @var Providers\Products
-     */
-    protected $options;
-
-    /**
-     * @var Providers\Products
-     */
-    protected $certificates;
-
-    /**
-     * @var int
-     */
+    /** @var int */
     protected $quantity;
 
-    /**
-     * @var Totals
-     */
+    /** @var Totals */
     protected $totals;
 
     /**
-     * @var Points
-     */
-    private $points;
-
-    /**
      * @param Providers\Provider $provider
-     * @param Points             $points
-     * @param Providers\Products $options
-     * @param Providers\Products $certificates
-     * @param array              $products
      */
-    public function __construct(Providers\Provider $provider, Points $points, Providers\Products $options, Providers\Products $certificates, array $products = array())
+    public function __construct(Providers\Provider $provider)
     {
-        $this->provider     = $provider;
-        $this->points       = $points;
-        $this->options      = $options;
-        $this->certificates = $certificates;
-        parent::__construct($products);
+        $this->provider = $provider;
+        parent::__construct(array());
     }
 
     /**
      * @param string $id
-     * @param string $certificateId
      * @param int    $quantity
      * @param int    $price
-     * @param string $pointId
      * @param string $shopId
      * @param string $shopTariffId
      * @param string $cityId
      * @param string $addressId
      * @param string $pvz
-     * @return Products\Certificate
+     * @return Products\Product\Certificate
      * @throws \Exception
      */
-    public function addCertificate($id, $certificateId, $quantity = 1, $price = null, $pointId = null, $shopId = null, $shopTariffId = null, $cityId = null, $addressId = null, $pvz = null)
+    public function addCertificate($id, $quantity = 1, $price = null, $shopId = null, $shopTariffId = null, $cityId = null, $addressId = null, $pvz = null)
     {
-        if($pointId) {
-            try {
-                $this->points->get($pointId);
-            } catch(\Exception $e) {
-                $pointId = null;
+        try {
+            $product = $this->get($id);
+            $product->setQuantity($product->quantity() + $quantity);
+            if($price !== null) {
+                $product->setPrice($price);
             }
-        }
-        if($this->certificates->offsetExists($id)) {
-            $certificate = $this->certificates->offsetGet($id);
-            $certificate = $this->certificates->edit($id, $quantity + $certificate->quantity, $pointId, $shopId, $shopTariffId, $cityId, $addressId, $pvz);
-        } else {
+            $product->setShopId($shopId);
+            $product->setShopTariffId($shopTariffId);
+            $product->setCityId($cityId);
+            $product->setAddressId($addressId);
+            $product->setPvz($pvz);
+        } catch(\Exception $e) {
+            $model       = $this->provider->models()->certificate();
+            $certificate = $model->load($id);
             if($price === null) {
-                $certificate = $this->provider->loadCertificate($certificateId);
-                $price       = $certificate->price;
+                $price = $certificate->price;
             }
-            $certificate = $this->certificates->add($certificateId, $quantity, $price, $pointId, $shopId, $shopTariffId, $cityId, $addressId, $pvz);
+            $product = $model->buildProduct($this, $certificate, $id, $quantity, $price, $shopId, $shopTariffId, $cityId, $addressId, $pvz);
         }
-        $product = $this->provider->buildCertificate($certificate, $this->points);
-        $this->offsetSet($certificateId, $product);
+        $this->saveAdd($product);
+        $this->offsetSet($product->id(), $product);
+        $this->quantity = null;
 
         return $product;
     }
 
     /**
      * @param string $id
-     * @param string $optionId
      * @param int    $quantity
      * @param int    $price
-     * @param string $pointId
      * @param string $shopId
      * @param string $shopTariffId
      * @param string $cityId
      * @param string $addressId
      * @param string $pvz
-     * @return Products\Option
+     * @return Products\Product\Option
      * @throws \Exception
      */
-    public function addOption($id, $optionId, $quantity = 1, $price = null, $pointId = null, $shopId = null, $shopTariffId = null, $cityId = null, $addressId = null, $pvz = null)
+    public function addOption($id, $quantity = 1, $price = null, $shopId = null, $shopTariffId = null, $cityId = null, $addressId = null, $pvz = null)
     {
-        if($pointId) {
-            try {
-                $this->points->get($pointId);
-            } catch(\Exception $e) {
-                $pointId = null;
+        try {
+            $product = $this->get($id);
+            $product->setQuantity($product->quantity() + $quantity);
+            if($price !== null) {
+                $product->setPrice($price);
             }
-        }
-        if($this->options->offsetExists($id)) {
-            $option = $this->options->offsetGet($id);
-
-            $option = $this->options->edit($id, $quantity + $option->quantity, $pointId, $shopId, $shopTariffId, $cityId, $addressId, $pvz);
-        } else {
+            $product->setShopId($shopId);
+            $product->setShopTariffId($shopTariffId);
+            $product->setCityId($cityId);
+            $product->setAddressId($addressId);
+            $product->setPvz($pvz);
+        } catch(\Exception $e) {
+            $model  = $this->provider->models()->option();
+            $option = $model->load($id);
             if($price === null) {
-                $option = $this->provider->loadOption($optionId);
-                $price  = $option->price;
+                $price = $option->price;
             }
-
-            $option = $this->options->add($optionId, $quantity, $price, $pointId, $shopId, $shopTariffId, $cityId, $addressId, $pvz);
+            $product = $model->buildProduct($this, $option, $id, $quantity, $price, $shopId, $shopTariffId, $cityId, $addressId, $pvz);
         }
-        $product = $this->provider->buildOption($option, $this->points);
-        $this->offsetSet($optionId, $product);
+        $this->offsetSet($product->id(), $product);
+        $this->saveAdd($product);
+        $this->quantity = null;
 
         return $product;
     }
@@ -141,27 +113,28 @@ class Products extends \ArrayObject
         return $this->getIterator();
     }
 
+    public function city($cityId = null)
+    {
+        return $this->provider->city($cityId);
+    }
+
     public function clear()
     {
-        $this->options->clear();
-        $this->certificates->clear();
+        $this->saveClear();
+        parent::exchangeArray(array());
     }
 
     /**
-     * @param $id
+     * @param mixed $id
      * @return Products\Product
+     * @throws \Exception
      */
     public function get($id)
     {
-        return $this->offsetGet($id);
-    }
-
-    /**
-     * @return \Meling\Cart\Providers\Provider
-     */
-    public function provider()
-    {
-        return $this->provider;
+        if($this->offsetExists($id)) {
+            return $this->offsetGet($id);
+        }
+        throw new \Exception('Product ' . $id . ' does not exist');
     }
 
     public function quantity()
@@ -179,19 +152,15 @@ class Products extends \ArrayObject
     /**
      * @param string $id
      */
-    public function removeCertificate($id)
+    public function remove($id)
     {
-        $this->certificates->remove($id);
-        $this->offsetUnset($id);
-    }
+        try {
+            $product = $this->get($id);
+            $this->offsetUnset($id);
+            $this->saveRemove($product);
+        } catch(\Exception $e) {
 
-    /**
-     * @param string $id
-     */
-    public function removeOption($id)
-    {
-        $this->options->remove($id);
-        $this->offsetUnset($id);
+        }
     }
 
     public function totals()
@@ -202,5 +171,11 @@ class Products extends \ArrayObject
 
         return $this->totals;
     }
+
+    protected abstract function saveAdd($product);
+
+    protected abstract function saveClear();
+
+    protected abstract function saveRemove($product);
 
 }

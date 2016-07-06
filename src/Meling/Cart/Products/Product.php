@@ -3,123 +3,102 @@ namespace Meling\Cart\Products;
 
 /**
  * Class Product
- * @method string name()
+ * @method int old_price()
  * @package Meling\Cart\Products
  */
 abstract class Product
 {
-    /**
-     * @var string
-     */
-    public $pointId;
+    /** @var \Meling\Cart\Providers\Models\Model */
+    protected $model;
 
-    /**
-     * @var string
-     */
-    public $shopId;
+    /** @var \Meling\Cart\Products */
+    protected $products;
 
-    /**
-     * @var string
-     */
-    public $shopTariffId;
-
-    /**
-     * @var \Parishop\ORMWrappers\City\Entity
-     */
-    public $city;
-
-    /**
-     * @var string
-     */
-    public $cityId;
-
-    /**
-     * @var string
-     */
-    public $addressId;
-
-    /**
-     * @var string
-     */
-    public $pvz;
-
-    /**
-     * @var int
-     */
-    protected $id;
-
-    /**
-     * @var \PHPixie\ORM\Wrappers\Type\Database\Entity
-     */
+    /** @var \Parishop\ORMWrappers\Entity */
     protected $entity;
 
-    /**
-     * @var int
-     */
-    protected $quantity;
-
-    /**
-     * @var int
-     */
-    protected $price;
-
-    /**
-     * @var int
-     */
-    protected $priceFinal;
-
-    /**
-     * @var \Meling\Cart\Points
-     */
+    /** @var \Meling\Cart\Points */
     protected $points;
 
-    /**
-     * @var \Meling\Cart\Points\Point\Shop[]
-     */
-    protected $shops;
+    /** @var mixed */
+    private $id;
 
-    /**
-     * @var \Meling\Cart\Points\Point\Delivery[]
-     */
-    protected $deliveries;
+    /** @var int */
+    private $quantity;
+
+    /** @var int */
+    private $price;
+
+    /** @var int */
+    private $priceTotal;
+
+    /** @var int */
+    private $priceFinal;
+
+    /** @var mixed */
+    private $shopId;
+
+    /** @var mixed */
+    private $shopTariffId;
+
+    /** @var mixed */
+    private $cityId;
+
+    /** @var mixed */
+    private $addressId;
+
+    /** @var string */
+    private $pvz;
 
     /**
      * Product constructor.
-     * @param int                               $id
-     * @param int                               $quantity
-     * @param int                               $price
-     * @param \Meling\Cart\Points               $points
-     * @param string                            $pointId
-     * @param string                            $shopId
-     * @param string                            $shopTariffId
-     * @param \Parishop\ORMWrappers\City\Entity $city
-     * @param string                            $cityId
-     * @param string                            $addressId
-     * @param string                            $pvz
+     * @param \Meling\Cart\Providers\Models\Model $model
+     * @param \Meling\Cart\Products               $products
+     * @param \Parishop\ORMWrappers\Entity        $entity
+     * @param mixed                               $id
+     * @param int                                 $quantity
+     * @param int                                 $price
+     * @param mixed                               $shopId
+     * @param mixed                               $shopTariffId
+     * @param mixed                               $cityId
+     * @param mixed                               $addressId
+     * @param string                              $pvz
      */
-    public function __construct($id, $quantity, $price, \Meling\Cart\Points $points, $pointId = null, $shopId = null, $shopTariffId = null, $city = null, $cityId = null, $addressId = null, $pvz = null)
+    public function __construct(\Meling\Cart\Providers\Models\Model $model, \Meling\Cart\Products $products, \Parishop\ORMWrappers\Entity $entity, $id, $quantity = 1, $price = null, $shopId = null, $shopTariffId = null, $cityId = null, $addressId = null, $pvz = '')
     {
+        $this->model        = $model;
+        $this->products     = $products;
+        $this->entity       = $entity;
         $this->id           = $id;
         $this->quantity     = $quantity;
         $this->price        = $price;
-        $this->pointId      = $pointId;
+        $this->priceTotal   = $this->price * $this->quantity;
+        $this->priceFinal   = $this->priceTotal;
         $this->shopId       = $shopId;
         $this->shopTariffId = $shopTariffId;
-        $this->city         = $city;
         $this->cityId       = $cityId;
         $this->addressId    = $addressId;
         $this->pvz          = $pvz;
-        $this->points       = $points;
-        $this->priceFinal   = $this->priceTotal();
-    }
-
-    public function city()
-    {
-        return $this->city;
     }
 
     /**
-     * @return int
+     * @return mixed
+     */
+    public function addressId()
+    {
+        return $this->addressId;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function cityId()
+    {
+        return $this->cityId;
+    }
+
+    /**
+     * @return mixed
      */
     public function id()
     {
@@ -127,44 +106,70 @@ abstract class Product
     }
 
     /**
+     * @return \Meling\Cart\Providers\Models\Model
+     */
+    public function model()
+    {
+        return $this->model;
+    }
+
+    /**
      * @return \Meling\Cart\Points\Point
      */
     public function point()
     {
-        if($this->pointId) {
-            return $this->points()->get($this->pointId);
+        try {
+            if($this->shopId() && $this->shopTariffId()) {
+                return $this->points()->get($this->shopId() . $this->shopTariffId());
+            }
+        } catch(\Exception $e) {
+            $this->setShopId(null);
+            $this->setShopTariffId(null);
+            $this->setCityId(null);
+            $this->setAddressId(null);
+            $this->setPvz('');
+        }
+        try {
+            if($this->shopId()) {
+                return $this->points()->get($this->shopId());
+            }
+        } catch(\Exception $e) {
+            $this->setShopId(null);
+            $this->setShopTariffId(null);
+            $this->setCityId(null);
+            $this->setAddressId(null);
+            $this->setPvz('');
         }
 
         return null;
     }
 
-    public function pointDeliveries()
+    /**
+     * @return \Meling\Cart\Points\Point\Delivery
+     */
+    public function pointDelivery()
     {
-        if($this->deliveries === null) {
-            $this->deliveries = array();
-            foreach($this->points->deliveries()->asArray() as $point) {
-                if($point->rests()->offsetExists($this->id())) {
-                    $this->deliveries[$point->id()] = $point;
-                }
+        if($point = $this->point()) {
+            if($point instanceof \Meling\Cart\Points\Point\Delivery) {
+                return $point;
             }
         }
 
-        return $this->deliveries;
+        return null;
     }
 
-    public function pointShops()
+    /**
+     * @return \Meling\Cart\Points\Point
+     */
+    public function pointShop()
     {
-        if($this->shops === null) {
-            $this->shops = array();
-            $this->points->shops()->uasort(array(get_class($this), 'sortedByCity'));
-            foreach($this->points->shops()->asArray() as $point) {
-                if($point->rests()->offsetExists($this->id())) {
-                    $this->shops[$point->id()] = $point;
-                }
+        if($point = $this->point()) {
+            if($point instanceof \Meling\Cart\Points\Point\Shop) {
+                return $point;
             }
         }
 
-        return $this->shops;
+        return null;
     }
 
     /**
@@ -172,6 +177,8 @@ abstract class Product
      */
     public function points()
     {
+        $this->requirePoints();
+
         return $this->points;
     }
 
@@ -183,18 +190,28 @@ abstract class Product
         return $this->price;
     }
 
-    public function priceFinal($priceFinal = null)
+    /**
+     * @return mixed
+     */
+    public function priceFinal()
     {
-        if($priceFinal) {
-            $this->priceFinal -= $priceFinal;
-        }
-
         return $this->priceFinal;
     }
 
+    /**
+     * @return mixed
+     */
     public function priceTotal()
     {
-        return $this->price() * $this->quantity();
+        return $this->priceTotal;
+    }
+
+    /**
+     * @return string
+     */
+    public function pvz()
+    {
+        return $this->pvz;
     }
 
     /**
@@ -205,20 +222,128 @@ abstract class Product
         return $this->quantity;
     }
 
-    /**
-     * @param \Meling\Cart\Points\Point\Shop $a
-     * @param \Meling\Cart\Points\Point\Shop $b
-     * @return int
-     */
-    public static function sortedByCity($a, $b)
+    public function save()
     {
-        if($a->cityId == $b->cityId) {
-            return 0;
+        switch($this->model()->modelName()) {
+            case 'option':
+                $this->products->addOption($this->id(), 0, $this->price(), $this->shopId(), $this->shopTariffId(), $this->cityId(), $this->addressId(), $this->pvz());
+                break;
+            case 'certificate':
+                $this->products->addCertificate($this->id(), 0, $this->price(), $this->shopId(), $this->shopTariffId(), $this->cityId(), $this->addressId(), $this->pvz());
+                break;
         }
-
-        return ($a->cityId < $b->cityId) ? -1 : 1;
     }
 
-    public abstract function old_price();
+    /**
+     * @param mixed $addressId
+     */
+    public function setAddressId($addressId)
+    {
+        $this->addressId = $addressId;
+    }
+
+    /**
+     * @param mixed $cityId
+     */
+    public function setCityId($cityId)
+    {
+        $this->cityId = $cityId;
+        $this->points = null;
+    }
+
+    /**
+     * @param int $price
+     */
+    public function setPrice($price)
+    {
+        $this->price = $price;
+    }
+
+    /**
+     * @param string $pvz
+     */
+    public function setPvz($pvz)
+    {
+        $this->pvz = $pvz;
+    }
+
+    /**
+     * @param int $quantity
+     */
+    public function setQuantity($quantity)
+    {
+        $this->quantity = $quantity;
+    }
+
+    /**
+     * @param mixed $shopId
+     */
+    public function setShopId($shopId)
+    {
+        $this->shopId = $shopId;
+    }
+
+    /**
+     * @param mixed $shopTariffId
+     */
+    public function setShopTariffId($shopTariffId)
+    {
+        $this->shopTariffId = $shopTariffId;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function shopId()
+    {
+        return $this->shopId;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function shopTariffId()
+    {
+        return $this->shopTariffId;
+    }
+
+    protected function requirePoints()
+    {
+        if($this->points !== null) {
+            return;
+        }
+        // Формируем все доступные точки отправления товара
+        $this->points = new \Meling\Cart\Points($this->products->city($this->cityId()));
+        /** @var \Parishop\ORMWrappers\RestOption\Entity $rest */
+        foreach($this->entity->{$this->model()->relationShips('rest')}() as $rest) {
+            // Пропускаем Магазин, который не является точкой выдачи и не имеет тарифов на отправку
+            if(!$rest->shop()->pickup_point && !$rest->shop()->shopTariffs()->offsetExists(0)) {
+                continue;
+            }
+            // Если Магазин является точкой выдачи
+            if($rest->shop()->pickup_point) {
+                try {
+                    // Пытаемся найти этот магазин среди добавленных
+                    $point = $this->points->shops()->get($rest->shop()->id());
+                } catch(\Exception $e) {
+                    // Добавляем новый магазин в список доступных ПВЗ
+                    $point = $this->points->shops()->set($rest->shop()->id(), $rest->shop());
+                }
+                $point->products()->offsetSet($this->id(), $rest->quantity);
+                $this->points->set($point->id(), $point);
+            }
+            foreach($rest->shop()->shopTariffs() as $shopTariff) {
+                if($shopTariff->success($this->points->city())) {
+                    try {
+                        $point = $this->points->deliveries()->get($shopTariff->shopId . $shopTariff->id);
+                    } catch(\Exception $e) {
+                        $point = $this->points->deliveries()->set($shopTariff->shopId . $shopTariff->id, $shopTariff);
+                    }
+                    $this->points->set($point->id(), $point);
+                }
+            }
+        }
+    }
 
 }
+

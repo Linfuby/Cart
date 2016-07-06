@@ -16,7 +16,7 @@ class Action implements Implementation
      * Action constructor.
      * @param \Parishop\ORMWrappers\Action\Entity $action
      */
-    public function __construct(\Parishop\ORMWrappers\Action\Entity $action = null)
+    public function __construct($action = null)
     {
         $this->action = $action;
     }
@@ -51,17 +51,17 @@ class Action implements Implementation
 
     public function name()
     {
-        return $this->action ? $this->action->name() : null;
+        return $this->action ? $this->action->getField('name') : null;
     }
 
     public function useCard()
     {
-        return $this->action ? $this->action->with_card : 1;
+        return (bool)($this->action ? $this->action->getField('with_card', true) : true);
     }
 
     public function useSpecial()
     {
-        return $this->action ? $this->action->price_flag : 1;
+        return (bool)($this->action ? $this->action->getField('price_flag', true) : true);
     }
 
 }

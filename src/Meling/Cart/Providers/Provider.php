@@ -2,74 +2,83 @@
 namespace Meling\Cart\Providers;
 
 /**
+ * Провайдер Покупателя
  * Class Provider
  * @package Meling\Cart\Providers
  */
 abstract class Provider
 {
-    /**
-     * @var \PHPixie\ORM
-     */
+    /** @var \PHPixie\ORM */
     protected $orm;
 
-    /**
-     * @var \PHPixie\HTTP\Context
-     */
-    protected $context;
+    /** @var mixed */
+    protected $cityId;
 
-    /**
-     * @var \Meling\Cart\Actions
-     */
+    /** @var \Meling\Cart\Actions */
     protected $actions;
 
-    /**
-     * @var \Meling\Cart\Actions
-     */
+    /** @var \Meling\Cart\Actions */
     protected $actionsAfter;
 
-    /**
-     * @var \Meling\Cart\Addresses
-     */
+    /** @var \Meling\Cart\Addresses */
     protected $addresses;
 
-    /**
-     * @var \Meling\Cart\Cards
-     */
+    /** @var \Meling\Cart\Cards */
     protected $cards;
 
+    /** @var \Meling\Cart\Providers\Products */
+    protected $products;
+
+    /** @var mixed */
+    protected $actionId;
+
     /**
-     * Provider constructor.
-     * @param \PHPixie\ORM          $orm
-     * @param \PHPixie\HTTP\Context $context
+     * Провайдер Покупателя
+     * @param \PHPixie\ORM $orm      Доступ к БД
+     * @param mixed        $cityId   Город по умолчанию
+     * @param mixed        $actionId Акция по умолчанию
      */
-    public function __construct(\PHPixie\ORM $orm, \PHPixie\HTTP\Context $context)
+    public function __construct(\PHPixie\ORM $orm, $cityId, $actionId)
     {
-        $this->orm     = $orm;
-        $this->context = $context;
+        $this->orm      = $orm;
+        $this->cityId   = $cityId;
+        $this->actionId = $actionId;
     }
 
     /**
+     * Акции доступные Покупателю
      * @return \Meling\Cart\Actions
      */
     public function actions()
     {
         if($this->actions === null) {
-            /** @var \Parishop\ORMWrappers\Action\Query $actions */
-            $allowActions = $this->orm->query('allowAction');
+            $allowActions = $this->orm->query('allAction');
             $allowActions->where('after', 0);
             $allowActions->whereNot('actionTypeId', 53001);
+            if($this->actionsBirthday() === null) {
+                $allowActions->whereNot('actionTypeId', 53006);
+            }
+            if($this->actionsMarriage() === null) {
+                $allowActions->whereNot('actionTypeId', 53007);
+            }
+            $allowActions->startGroup();
+            $allowActions->where('date_start', '<=', $this->actionsDate()->format('Y-m-d H:i:s'));
+            $allowActions->where('date_end', '>=', $this->actionsDate()->format('Y-m-d H:i:s'));
+            $allowActions->orWhere('date_end', '0000-00-00 00:00:00');
+            $allowActions->endGroup();
             $actions = array();
-            /** @var \Parishop\ORMWrappers\Action\Entity $action */
+            /** @var \PHPixie\ORM\Wrappers\Type\Database\Entity $action */
             foreach($allowActions->find() as $action) {
                 $actions[(string)$action->id()] = new \Meling\Cart\Actions\Action($action);
             }
-            $this->actions = new \Meling\Cart\Actions($actions, $this->actionId());
+            $this->actions = new \Meling\Cart\Actions($actions, $this->action() ? $this->action()->id() : null);
         }
 
         return $this->actions;
     }
 
     /**
+     * Постпродажные акции доступные Покупателю
      * @return \Meling\Cart\Actions
      */
     public function actionsAfter()
@@ -78,7 +87,7 @@ abstract class Provider
             $allowActions = $this->orm->query('allowAction');
             $allowActions->where('after', 1);
             $actions = array();
-            /** @var \Parishop\ORMWrappers\Action\Entity $action */
+            /** @var \PHPixie\ORM\Wrappers\Type\Database\Entity $action */
             foreach($allowActions->find() as $action) {
                 $actions[(string)$action->id()] = new \Meling\Cart\Actions\Action($action);
             }
@@ -88,138 +97,143 @@ abstract class Provider
         return $this->actionsAfter;
     }
 
-    public function buildCertificate($certificate, $points)
-    {
-        $entity = $this->loadCertificate($certificate->certificateId);
-        $city   = null;
-        if($certificate->cityId) {
-            $city = $this->city($certificate->cityId);
-        }
-
-        return new \Meling\Cart\Products\Certificate($entity->id(), $entity, $certificate->quantity, $certificate->price, $points, $certificate->pointId, $certificate->shopId, $certificate->shopTariffId, $city, $certificate->cityId, $certificate->addressId, $certificate->pvz);
-    }
-
-    public function buildOption($option, $points)
-    {
-        $entity = $this->loadOption($option->optionId);
-        $city   = null;
-        if($option->cityId) {
-            $city = $this->city($option->cityId);
-        }
-
-        return new \Meling\Cart\Products\Option($entity->id(), $entity, $option->quantity, $option->price, $points, $option->pointId, $option->shopId, $option->shopTariffId, $city, $option->cityId, $option->addressId, $option->pvz);
-    }
-
     /**
-     * @param null $cityId
+     * Город по умолчанию (Либо конкретный город)
+     * @param mixed $cityId
      * @return \Parishop\ORMWrappers\City\Entity
      */
     public function city($cityId = null)
     {
         if($cityId === null) {
-            $cityId = $this->context->cookies()->get('city_default_id', -6081056);
+            $cityId = $this->cityId;
         }
 
         return $this->orm->query('city')->in($cityId)->findOne();
     }
 
     /**
-     * @param $certificateId
-     * @return \Parishop\ORMWrappers\Certificate\Entity
-     * @throws \Exception
+     * @return Models
      */
-    public function loadCertificate($certificateId)
+    public function models()
     {
-        $certificate = $this->orm->query('certificate')->in($certificateId)->findOne();
-        if($certificate === null) {
-            throw new \Exception('Certificate ' . $certificateId . ' does not exist');
-        }
-
-        return $certificate;
+        return new Models($this->orm());
     }
 
     /**
-     * @param $optionId
-     * @return \Parishop\ORMWrappers\Option\Entity
-     * @throws \Exception
+     * @return \PHPixie\ORM
      */
-    public function loadOption($optionId)
+    public function orm()
     {
-        $option = $this->orm->query('option')->in($optionId)->findOne(
-            array(
-                'restOptions.shop.shopTariffs.delivery',
-            )
-        );
-        if($option === null) {
-            throw new \Exception('Option ' . $optionId . ' does not exist');
-        }
-
-        return $option;
-    }
-
-    protected function actionId()
-    {
-        return $this->context->session()->get('actionId');
+        return $this->orm;
     }
 
     /**
+     * Товары Покупателя (Корзина)
+     * @return Products
+     */
+    public function products()
+    {
+        if($this->products === null) {
+            $this->products = $this->buildProducts();
+        }
+
+        return $this->products;
+    }
+
+    /**
+     * Акция по умолчанию (Либо конкретная акция)
+     * @param mixed $actionId
+     * @return mixed
+     */
+    protected function action($actionId = null)
+    {
+        if($actionId === null) {
+            $actionId = $this->actionId;
+        }
+        if($actionId) {
+            return $this->orm->query('action')->in($actionId)->findOne();
+        }
+
+        return null;
+    }
+
+    /**
+     * Дата рождения для определения добавления акции типа "День рождения"
      * @return \DateTime
      */
     public abstract function actionsBirthday();
 
     /**
+     * Текущая дата на которую выводить действующие акции
      * @return \DateTime
      */
     public abstract function actionsDate();
 
     /**
+     * Дата свадьбы для определения добавления акции типа "День свадьбы"
      * @return \DateTime
      */
     public abstract function actionsMarriage();
 
     /**
+     * Адреса Покупателя
      * @return \Meling\Cart\Addresses
      */
     public abstract function addresses();
 
     /**
+     * Клубные карты Покупателя
      * @return \Meling\Cart\Cards
      */
     public abstract function cards();
 
     /**
+     * Покупатель
      * @return \Parishop\ORMWrappers\Customer\Entity
      */
     public abstract function customer();
 
     /**
+     * E-mail Покупателя
      * @return string
      */
     public abstract function email();
 
     /**
+     * Имя Покупателя
      * @return string
      */
     public abstract function firstname();
 
     /**
+     * Идентификатор Покупателя
      * @return string
      */
     public abstract function id();
 
     /**
+     * Фамилия Покупателя
      * @return string
      */
     public abstract function lastname();
 
     /**
+     * Отчество Покупателя
      * @return string
      */
     public abstract function middlename();
 
     /**
+     * Телефон Покупателя
      * @return string
      */
     public abstract function phone();
 
+    /**
+     * Товары Покупателя
+     * @return mixed
+     */
+    protected abstract function buildProducts();
+
 }
+
