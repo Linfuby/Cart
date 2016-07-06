@@ -16,15 +16,14 @@
     ],
     "require": {
         "php": ">=5.4.0",
-        "phpixie/default-bundle": "~3.0",
-        "phpixie/bundle-framework": "~3.0"
+        "phpixie/orm": "~3.0",
+        "phpixie/http": "~3.0"
     },
     "require-dev": {
         "phpixie/test": "~3.0"
     },
     "autoload": {
         "psr-4": {
-            "Parishop\\": "src/Parishop",
             "Meling\\": "src/Meling",
             "Meling\\Tests\\": "tests/Meling/Tests"
         }
