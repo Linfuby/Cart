@@ -8,6 +8,12 @@ namespace Parishop\ORMWrappers\Information;
  * @property string name
  * @property string alias
  * @property string description
+ * @property string meta_title
+ * @property string meta_description
+ * @property string meta_keywords
+ * @property string og_title
+ * @property string og_description
+ * @property string og_image
  * @package    ORMWrappers
  * @subpackage Entity
  */

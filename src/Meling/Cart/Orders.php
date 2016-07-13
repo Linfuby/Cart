@@ -22,18 +22,18 @@ class Orders extends \ArrayObject
      * Orders constructor.
      * @param Providers\Provider $provider
      * @param Products           $products
-     * @param Points             $points
-     * @param Providers\Products $options
-     * @param Providers\Products $certificates
      */
-    public function __construct(Providers\Provider $provider, Products $products, Points $points, Providers\Products $options, Providers\Products $certificates)
+    public function __construct(Providers\Provider $provider, Products $products)
     {
         foreach($products->asArray() as $product) {
             if($product->point()) {
                 if(!$this->offsetExists($product->point()->id())) {
-                    $this->offsetSet($product->point()->id(), $this->buildOrder($product->point()->id(), new Products($provider, $points, $options, $certificates), $product->point(), $product->pvz));
+                    $provider->resetCards();
+                    $products = new \Meling\Cart\Products\Custom($provider);
+                    $this->offsetSet($product->point()->id(), $this->buildOrder($product->point()->id(), $products, $product->point(), $product->pvz()));
                 }
-                $this->offsetGet($product->point()->id())->products()->append($product);
+                $product->priceReset();
+                $this->offsetGet($product->point()->id())->products()->offsetSet($product->id(), $product);
             }
         }
     }

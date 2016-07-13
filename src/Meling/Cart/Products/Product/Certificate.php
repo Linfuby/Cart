@@ -37,9 +37,18 @@ class Certificate extends \Meling\Cart\Products\Product
         return $this->entity;
     }
 
+    /**
+     * @return mixed
+     */
+    public function name()
+    {
+        return $this->entity->name();
+    }
+
     public function old_price()
     {
         return 0;
     }
+
 }
 

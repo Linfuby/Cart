@@ -21,6 +21,7 @@ class Session extends \Meling\Cart\Products
         $this->session = $session;
         foreach($this->provider->models()->asArray() as $model) {
             foreach($this->session->get($model->plural(), array()) as $product) {
+                $product = (array)$product;
                 /** @var \Parishop\ORMWrappers\Entity $entity */
                 if($entity = $model->load($product['id'])) {
                     $product = $model->buildProduct(
@@ -62,7 +63,7 @@ class Session extends \Meling\Cart\Products
             );
         }
         foreach($this->provider->models()->asArray() as $model) {
-            $this->session->set($model->plural(), isset($models[$model->plural()]) && is_array($models[$model->plural()]) ? $models[$model->plural()] : array());
+            $this->session()->set($model->plural(), isset($models[$model->plural()]) && is_array($models[$model->plural()]) ? $models[$model->plural()] : array());
         }
     }
 

@@ -3,6 +3,7 @@ namespace Meling\Cart\Points\Point;
 
 /**
  * Class Shop
+ * @property string cityId
  * @property string street
  * @property string work_times
  * @property string phone
@@ -45,6 +46,11 @@ class Shop extends \Meling\Cart\Points\Point
     function __get($name)
     {
         return $this->shop->{$name};
+    }
+
+    public function cityName()
+    {
+        return $this->shop->city()->name();
     }
 
     public function cost()

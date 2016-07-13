@@ -33,8 +33,8 @@ class Order
     public function __construct($id, $products, \Meling\Cart\Points\Point $point, $pvz = null)
     {
         $this->id       = $id;
-        $this->point    = $point;
         $this->products = $products;
+        $this->point    = $point;
         $this->pvz      = $pvz;
     }
 
@@ -50,13 +50,22 @@ class Order
     {
         $point = $this->point();
         if($point instanceof \Meling\Cart\Points\Point\Shop) {
-            return $point->name() . '. ' . $point->street();
+            return 'Самовывоз: ' . $point->nameFull();
         }
         if($point instanceof \Meling\Cart\Points\Point\Delivery) {
-            return $point->name() . '. ' . $this->pvz;
+            return 'Доставка: ' . $point->nameFull();
         }
 
         return null;
+    }
+
+    /**
+     * TODO-Linfuby: Реализовать когда будет оплата Онлайн
+     * @return array
+     */
+    public function payments()
+    {
+        return array();
     }
 
     /**
@@ -74,5 +83,4 @@ class Order
     {
         return $this->products;
     }
-
 }

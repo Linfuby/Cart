@@ -20,6 +20,9 @@ abstract class Product
     /** @var \Meling\Cart\Points */
     protected $points;
 
+    /** @var \Parishop\ORMWrappers\City\Entity */
+    protected static $cityDefault;
+
     /** @var mixed */
     private $id;
 
@@ -79,6 +82,7 @@ abstract class Product
         $this->cityId       = $cityId;
         $this->addressId    = $addressId;
         $this->pvz          = $pvz;
+        self::$cityDefault  = $this->products->city($this->cityId());
     }
 
     /**
@@ -95,6 +99,14 @@ abstract class Product
     public function cityId()
     {
         return $this->cityId;
+    }
+
+    /**
+     * @return \Parishop\ORMWrappers\Option\Entity
+     */
+    public function entity()
+    {
+        return $this->entity;
     }
 
     /**
@@ -128,6 +140,7 @@ abstract class Product
             $this->setCityId(null);
             $this->setAddressId(null);
             $this->setPvz('');
+            $this->save();
         }
         try {
             if($this->shopId()) {
@@ -139,6 +152,7 @@ abstract class Product
             $this->setCityId(null);
             $this->setAddressId(null);
             $this->setPvz('');
+            $this->save();
         }
 
         return null;
@@ -190,20 +204,23 @@ abstract class Product
         return $this->price;
     }
 
-    /**
-     * @return mixed
-     */
-    public function priceFinal()
+    public function priceFinal($priceFinal = null)
     {
+        if($priceFinal) {
+            $this->priceFinal -= $priceFinal;
+        }
+
         return $this->priceFinal;
     }
 
-    /**
-     * @return mixed
-     */
+    public function priceReset()
+    {
+        $this->priceFinal = $this->priceTotal();
+    }
+
     public function priceTotal()
     {
-        return $this->priceTotal;
+        return $this->price() * $this->quantity();
     }
 
     /**
@@ -307,6 +324,28 @@ abstract class Product
         return $this->shopTariffId;
     }
 
+    /**
+     * @param \Meling\Cart\Points\Point\Shop $a
+     * @param \Meling\Cart\Points\Point\Shop $b
+     * @return int
+     */
+    public static function sortedByCity($a, $b)
+    {
+        $aa = '2' . $a->cityName() . $a->name();
+        $bb = '2' . $b->cityName() . $b->name();
+        if($a->cityName() == self::$cityDefault->name()) {
+            $aa = '1' . $a->name();
+        }
+        if($b->cityName() == self::$cityDefault->name()) {
+            $bb = '1' . $b->name();
+        }
+        if($aa == $bb) {
+            return 0;
+        }
+
+        return ($aa < $bb) ? -1 : 1;
+    }
+
     protected function requirePoints()
     {
         if($this->points !== null) {
@@ -315,7 +354,7 @@ abstract class Product
         // Формируем все доступные точки отправления товара
         $this->points = new \Meling\Cart\Points($this->products->city($this->cityId()));
         /** @var \Parishop\ORMWrappers\RestOption\Entity $rest */
-        foreach($this->entity->{$this->model()->relationShips('rest')}() as $rest) {
+        foreach($this->entity()->{$this->model()->relationShips('rest')}() as $rest) {
             // Пропускаем Магазин, который не является точкой выдачи и не имеет тарифов на отправку
             if(!$rest->shop()->pickup_point && !$rest->shop()->shopTariffs()->offsetExists(0)) {
                 continue;
@@ -337,12 +376,13 @@ abstract class Product
                     try {
                         $point = $this->points->deliveries()->get($shopTariff->shopId . $shopTariff->id);
                     } catch(\Exception $e) {
-                        $point = $this->points->deliveries()->set($shopTariff->shopId . $shopTariff->id, $shopTariff);
+                        $point = $this->points->deliveries()->set($shopTariff->shopId . $shopTariff->id, $shopTariff, $this->shopTariffId() == $shopTariff->id ? $this->pvz() : '');
                     }
                     $this->points->set($point->id(), $point);
                 }
             }
         }
+        $this->points->shops()->uasort(array(get_class($this), 'sortedByCity'));
     }
 
 }

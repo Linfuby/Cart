@@ -5,6 +5,8 @@ class WrappersStub extends \PHPixie\ORM\Wrappers\Implementation
 {
     protected $databaseEntities = array(
         'address',
+        'action',
+        'actionType',
         'certificate',
         'city',
         'customer',

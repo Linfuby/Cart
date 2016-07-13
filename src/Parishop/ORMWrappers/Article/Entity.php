@@ -29,9 +29,9 @@ namespace Parishop\ORMWrappers\Article;
  * @property \PHPixie\ORM\Relationships\Type\ManyToMany\Property\Entity            $tags
  * @property \PHPixie\ORM\Relationships\Type\OneTo\Type\Many\Property\Entity\Owner $user
  * @method \Parishop\ORMWrappers\ArticleCategory\Entity articleCategory()
- * @method \Parishop\ORMWrappers\ArticleComment\Entity[] articleComments()
- * @method \Parishop\ORMWrappers\Product\Entity[] products()
- * @method \Parishop\ORMWrappers\ArticleTag\Entity[] articleTags()
+ * @method \Parishop\ORMWrappers\ArticleComment\Entity[]|\PHPixie\ORM\Loaders\Loader\Proxy\Editable articleComments()
+ * @method \Parishop\ORMWrappers\Product\Entity[]|\PHPixie\ORM\Loaders\Loader\Proxy\Editable products()
+ * @method \Parishop\ORMWrappers\ArticleTag\Entity[] tags()
  * @method \Parishop\ORMWrappers\User\Entity user()
  ***********************************************************************************************************************
  * @property string                                                                meta_title

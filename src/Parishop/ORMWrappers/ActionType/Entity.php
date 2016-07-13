@@ -18,16 +18,20 @@ class Entity extends \Parishop\ORMWrappers\Entity
      * @param \Parishop\ORMWrappers\Action\Entity $action
      * @param \Meling\Cart\Cards\Card             $card
      * @param \Meling\Cart\Products\Product[]     $products
+     * @param bool                                $pointCheck
      * @return int
      */
-    public function calculate($action, $card, $products)
+    public function calculate($action, $card, $products, $pointCheck = false)
     {
+        var_dump(1);
         $total      = 0;
         $productIds = array();
         foreach($products as $product) {
-            if($product instanceof \Meling\Cart\Products\Option) {
-                if($product->option()->specialSuccess($action->price_flag)) {
-                    $productIds[(string)$product->id()] = $product->id();
+            if(!$pointCheck || ($pointCheck && $product->point())) {
+                if($product instanceof \Meling\Cart\Products\Product\Option) {
+                    if($product->option()->specialSuccess($action->price_flag)) {
+                        $productIds[(string)$product->id()] = $product->id();
+                    }
                 }
             }
         }
@@ -40,12 +44,14 @@ class Entity extends \Parishop\ORMWrappers\Entity
                 $allowActionsProducts->where('optionId', 'in', $productIds);
                 $options = $allowActionsProducts->find()->asArray(false, 'optionId');
                 foreach($products as $product) {
-                    if($product instanceof \Meling\Cart\Products\Option) {
-                        if(array_key_exists($product->id(), $options)) {
-                            $discount        = $options[(string)$product->id()]->discount;
-                            $discountProduct = round($product->priceTotal() / 100 * $discount);
-                            $product->priceFinal($discountProduct);
-                            $total += $discountProduct;
+                    if(!$pointCheck || ($pointCheck && $product->point())) {
+                        if($product instanceof \Meling\Cart\Products\Product\Option) {
+                            if(array_key_exists($product->id(), $options)) {
+                                $discount        = $options[(string)$product->id()]->discount;
+                                $discountProduct = round($product->priceTotal() / 100 * $discount);
+                                $product->priceFinal($discountProduct);
+                                $total += $discountProduct;
+                            }
                         }
                     }
                 }
@@ -55,11 +61,13 @@ class Entity extends \Parishop\ORMWrappers\Entity
             case 53007:
                 $discount = $action->discount;
                 foreach($products as $product) {
-                    if($product instanceof \Meling\Cart\Products\Option) {
-                        if(array_key_exists($product->id(), $productIds)) {
-                            $discountProduct = round($product->priceTotal() / 100 * $discount);
-                            $product->priceFinal($discountProduct);
-                            $total += $discountProduct;
+                    if(!$pointCheck || ($pointCheck && $product->point())) {
+                        if($product instanceof \Meling\Cart\Products\Product\Option) {
+                            if(array_key_exists($product->id(), $productIds)) {
+                                $discountProduct = round($product->priceTotal() / 100 * $discount);
+                                $product->priceFinal($discountProduct);
+                                $total += $discountProduct;
+                            }
                         }
                     }
                 }
@@ -67,9 +75,11 @@ class Entity extends \Parishop\ORMWrappers\Entity
             case 53008:
                 $amount = 0;
                 foreach($products as $product) {
-                    if($product instanceof \Meling\Cart\Products\Option) {
-                        if(array_key_exists($product->id(), $productIds)) {
-                            $amount += $product->priceTotal();
+                    if(!$pointCheck || ($pointCheck && $product->point())) {
+                        if($product instanceof \Meling\Cart\Products\Product\Option) {
+                            if(array_key_exists($product->id(), $productIds)) {
+                                $amount += $product->priceTotal();
+                            }
                         }
                     }
                 }
@@ -80,9 +90,11 @@ class Entity extends \Parishop\ORMWrappers\Entity
             case 53009:
                 $amount = 0;
                 foreach($products as $product) {
-                    if($product instanceof \Meling\Cart\Products\Option) {
-                        if(array_key_exists($product->id(), $productIds)) {
-                            $amount += $product->priceTotal();
+                    if(!$pointCheck || ($pointCheck && $product->point())) {
+                        if($product instanceof \Meling\Cart\Products\Product\Option) {
+                            if(array_key_exists($product->id(), $productIds)) {
+                                $amount += $product->priceTotal();
+                            }
                         }
                     }
                 }
@@ -92,12 +104,14 @@ class Entity extends \Parishop\ORMWrappers\Entity
                     $rewards    = min($rewardsMin, $rewardsMax);
                     $discount   = (1 - ($amount - $rewards) / $amount) * 100;
                     foreach($products as $product) {
-                        if($product instanceof \Meling\Cart\Products\Option) {
-                            if(array_key_exists($product->id(), $productIds)) {
-                                $discountProduct = round($product->priceTotal() / 100 * $discount);
-                                $product->priceFinal($discountProduct);
-                                $total += $discountProduct;
-                                $card->bonuses -= $discountProduct;
+                        if(!$pointCheck || ($pointCheck && $product->point())) {
+                            if($product instanceof \Meling\Cart\Products\Product\Option) {
+                                if(array_key_exists($product->id(), $productIds)) {
+                                    $discountProduct = round($product->priceTotal() / 100 * $discount);
+                                    $product->priceFinal($discountProduct);
+                                    $total += $discountProduct;
+                                    $card->bonuses -= $discountProduct;
+                                }
                             }
                         }
                     }
@@ -106,9 +120,11 @@ class Entity extends \Parishop\ORMWrappers\Entity
             case 53010:
                 $amount = 0;
                 foreach($products as $product) {
-                    if($product instanceof \Meling\Cart\Products\Option) {
-                        if(array_key_exists($product->id(), $productIds)) {
-                            $amount += $product->priceFinal();
+                    if(!$pointCheck || ($pointCheck && $product->point())) {
+                        if($product instanceof \Meling\Cart\Products\Product\Option) {
+                            if(array_key_exists($product->id(), $productIds)) {
+                                $amount += $product->priceFinal();
+                            }
                         }
                     }
                 }
@@ -117,20 +133,24 @@ class Entity extends \Parishop\ORMWrappers\Entity
             case 53011:
                 $amount = 0;
                 foreach($products as $product) {
-                    if($product instanceof \Meling\Cart\Products\Option) {
-                        if(array_key_exists($product->id(), $productIds)) {
-                            $amount += $product->priceTotal();
+                    if(!$pointCheck || ($pointCheck && $product->point())) {
+                        if($product instanceof \Meling\Cart\Products\Product\Option) {
+                            if(array_key_exists($product->id(), $productIds)) {
+                                $amount += $product->priceTotal();
+                            }
                         }
                     }
                 }
                 if($amount >= $action->count) {
                     $discount = $action->discount;
                     foreach($products as $product) {
-                        if($product instanceof \Meling\Cart\Products\Option) {
-                            if(array_key_exists($product->id(), $productIds)) {
-                                $discountProduct = round($product->priceTotal() / 100 * $discount);
-                                $product->priceFinal($discountProduct);
-                                $total += $discountProduct;
+                        if(!$pointCheck || ($pointCheck && $product->point())) {
+                            if($product instanceof \Meling\Cart\Products\Product\Option) {
+                                if(array_key_exists($product->id(), $productIds)) {
+                                    $discountProduct = round($product->priceTotal() / 100 * $discount);
+                                    $product->priceFinal($discountProduct);
+                                    $total += $discountProduct;
+                                }
                             }
                         }
                     }
@@ -139,9 +159,11 @@ class Entity extends \Parishop\ORMWrappers\Entity
             case 53014:
                 $amount = 0;
                 foreach($products as $product) {
-                    if($product instanceof \Meling\Cart\Products\Option) {
-                        if(array_key_exists($product->id(), $productIds)) {
-                            $amount += $product->priceTotal();
+                    if(!$pointCheck || ($pointCheck && $product->point())) {
+                        if($product instanceof \Meling\Cart\Products\Product\Option) {
+                            if(array_key_exists($product->id(), $productIds)) {
+                                $amount += $product->priceTotal();
+                            }
                         }
                     }
                 }
@@ -156,12 +178,14 @@ class Entity extends \Parishop\ORMWrappers\Entity
                     $allowActionsProducts->where('optionId', 'in', $productIds);
                     $options = $allowActionsProducts->find()->asArray(false, 'optionId');
                     foreach($products as $product) {
-                        if($product instanceof \Meling\Cart\Products\Option) {
-                            if(array_key_exists($product->id(), $options)) {
-                                $discountProduct = round($product->priceTotal() / 100 * $discount);
-                                $product->priceFinal($discountProduct);
-                                $total += $discountProduct;
-                                $card->bonuses -= $discountProduct;
+                        if(!$pointCheck || ($pointCheck && $product->point())) {
+                            if($product instanceof \Meling\Cart\Products\Product\Option) {
+                                if(array_key_exists($product->id(), $options)) {
+                                    $discountProduct = round($product->priceTotal() / 100 * $discount);
+                                    $product->priceFinal($discountProduct);
+                                    $total += $discountProduct;
+                                    $card->bonuses -= $discountProduct;
+                                }
                             }
                         }
                     }
@@ -173,12 +197,14 @@ class Entity extends \Parishop\ORMWrappers\Entity
                 $allowActionsProducts->where('actionId', $action->id());
                 $allowActionsProducts->where('optionId', 'in', $productIds);
                 $options = $allowActionsProducts->find()->asArray(false, 'optionId');
-                /** @var \Meling\Cart\Products\Option[] $vTAs */
+                /** @var \Meling\Cart\Products\Product\Option[] $vTAs */
                 $vTAs = array();
                 foreach($products as $product) {
-                    if($product instanceof \Meling\Cart\Products\Option) {
-                        if(array_key_exists($product->id(), $options)) {
-                            $vTAs[] = $product;
+                    if(!$pointCheck || ($pointCheck && $product->point())) {
+                        if($product instanceof \Meling\Cart\Products\Product\Option) {
+                            if(array_key_exists($product->id(), $options)) {
+                                $vTAs[] = $product;
+                            }
                         }
                     }
                 }

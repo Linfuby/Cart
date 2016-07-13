@@ -48,12 +48,12 @@ class Total
         return 'Итого:';
     }
 
-    public function total()
+    public function total($pointCheck = false)
     {
-        if($this->total === null) {
-            $this->total = ($this->totals->amount()->total() + $this->totals->shipping()->total()) - ($this->totals->action()->total() + $this->totals->card()->total());
+        if($pointCheck || $this->total === null) {
+            $this->total = ($this->totals->amount()->total($pointCheck) + $this->totals->shipping()->total($pointCheck)) - ($this->totals->action()->total($pointCheck) + $this->totals->card()->total($pointCheck));
             foreach($this->actionsAfter->asArray() as $action) {
-                $this->total -= $action->calculate($this->card, $this->products);
+                $this->total -= $action->calculate($this->card, $this->products, $pointCheck);
             }
         }
 

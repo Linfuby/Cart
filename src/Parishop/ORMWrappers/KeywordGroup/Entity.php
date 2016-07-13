@@ -32,6 +32,7 @@ namespace Parishop\ORMWrappers\KeywordGroup;
  * @property \PHPixie\ORM\Relationships\Type\OneTo\Type\Many\Property\Entity\Owner $yandexRegion
  * @property \PHPixie\ORM\Relationships\Type\ManyToMany\Property\Entity            $groups
  * @property \PHPixie\ORM\Relationships\Type\ManyToMany\Property\Entity            $synonyms
+ * @property \PHPixie\ORM\Relationships\Type\OneTo\Type\Many\Property\Entity\Items $keywords
  * @method \PHPixie\ORM\Loaders\Loader\Proxy\Editable actions()
  * @method \Parishop\ORMWrappers\ArticleCategory\Entity[] articleCategories()
  * @method \PHPixie\ORM\Loaders\Loader\Proxy\Editable articles()

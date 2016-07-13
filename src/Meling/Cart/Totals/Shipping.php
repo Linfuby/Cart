@@ -39,11 +39,11 @@ class Shipping
         $this->total = $total;
     }
 
-    public function total()
+    public function total($pointCheck = false)
     {
-        if($this->total === null) {
+        if($pointCheck || $this->total === null) {
             $this->total = 0;
-            if($this->amount->total() < 10000) {
+            if($this->amount->total($pointCheck) < 10000) {
                 /** @var \Meling\Cart\Points\Point[] $points */
                 $points = array();
                 foreach($this->products->asArray() as $product) {

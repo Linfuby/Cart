@@ -26,7 +26,7 @@ abstract class Provider
     /** @var \Meling\Cart\Cards */
     protected $cards;
 
-    /** @var \Meling\Cart\Providers\Products */
+    /** @var \Meling\Cart\Products */
     protected $products;
 
     /** @var mixed */
@@ -129,7 +129,7 @@ abstract class Provider
 
     /**
      * Товары Покупателя (Корзина)
-     * @return Products
+     * @return \Meling\Cart\Products
      */
     public function products()
     {
@@ -138,6 +138,11 @@ abstract class Provider
         }
 
         return $this->products;
+    }
+
+    public function resetCards()
+    {
+        $this->cards = null;
     }
 
     /**

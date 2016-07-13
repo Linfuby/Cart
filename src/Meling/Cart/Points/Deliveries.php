@@ -35,11 +35,12 @@ class Deliveries extends \ArrayObject
     /**
      * @param                                         $id
      * @param \Parishop\ORMWrappers\ShopTariff\Entity $shopTariff
+     * @param string                                  $pvz
      * @return Point\Delivery
      */
-    public function set($id, $shopTariff)
+    public function set($id, $shopTariff, $pvz)
     {
-        $point = $this->buildPoint($shopTariff);
+        $point = $this->buildPoint($shopTariff, $pvz);
         $this->offsetSet($id, $point);
 
         return $point;
@@ -47,11 +48,12 @@ class Deliveries extends \ArrayObject
 
     /**
      * @param \Parishop\ORMWrappers\ShopTariff\Entity $shopTariff
+     * @param string                                  $pvz
      * @return Point\Delivery
      */
-    protected function buildPoint($shopTariff)
+    protected function buildPoint($shopTariff, $pvz)
     {
-        return new Point\Delivery($shopTariff->shopId . $shopTariff->id, $shopTariff);
+        return new Point\Delivery($shopTariff->shopId . $shopTariff->id, $shopTariff, $pvz);
     }
 
 }

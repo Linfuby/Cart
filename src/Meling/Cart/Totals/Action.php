@@ -51,11 +51,11 @@ class Action
         $this->total = $total;
     }
 
-    public function total()
+    public function total($pointCheck = false)
     {
-        if($this->total === null) {
+        if($pointCheck || $this->total === null) {
             $this->total = 0;
-            $this->total = $this->action->calculate($this->card, $this->products);
+            $this->total = $this->action->calculate($this->card, $this->products, $pointCheck);
         }
 
         return $this->total;

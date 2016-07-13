@@ -9,7 +9,7 @@ namespace Meling\Cart\Points\Point;
  */
 class Delivery extends \Meling\Cart\Points\Point
 {
-    public    $shopTariffId;
+    public $shopTariffId;
 
     /** @var \Parishop\ORMWrappers\Delivery\Entity */
     protected $delivery;
@@ -17,17 +17,22 @@ class Delivery extends \Meling\Cart\Points\Point
     /** @var \Parishop\ORMWrappers\ShopTariff\Entity */
     protected $shopTariff;
 
+    /** @var string */
+    protected $pvz;
+
     /**
      * Delivery constructor.
      * @param mixed                                   $id
      * @param \Parishop\ORMWrappers\ShopTariff\Entity $shopTariff
+     * @param string                                  $pvz
      */
-    public function __construct($id, \Parishop\ORMWrappers\ShopTariff\Entity $shopTariff)
+    public function __construct($id, \Parishop\ORMWrappers\ShopTariff\Entity $shopTariff, $pvz)
     {
         parent::__construct($id);
         $this->delivery     = $shopTariff->delivery();
         $this->shopTariff   = $shopTariff;
         $this->shopTariffId = $shopTariff->id();
+        $this->pvz          = $pvz;
     }
 
     /**
@@ -61,7 +66,7 @@ class Delivery extends \Meling\Cart\Points\Point
 
     public function nameFull()
     {
-        return $this->nameCity();
+        return $this->delivery->name() . ' (' . $this->pvz . ')';
     }
 
     public function shopTariff()

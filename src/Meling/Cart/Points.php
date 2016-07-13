@@ -37,6 +37,14 @@ class Points extends \ArrayObject
         return $this->city;
     }
 
+    /**
+     * @return \Meling\Cart\Points\Point
+     */
+    public function current()
+    {
+        return $this->getIterator()->current();
+    }
+
     public function deliveries()
     {
         return $this->deliveries;

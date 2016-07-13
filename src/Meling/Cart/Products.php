@@ -58,8 +58,8 @@ abstract class Products extends \ArrayObject
             }
             $product = $model->buildProduct($this, $certificate, $id, $quantity, $price, $shopId, $shopTariffId, $cityId, $addressId, $pvz);
         }
-        $this->saveAdd($product);
         $this->offsetSet($product->id(), $product);
+        $this->saveAdd($product);
         $this->quantity = null;
 
         return $product;
@@ -120,8 +120,16 @@ abstract class Products extends \ArrayObject
 
     public function clear()
     {
-        $this->saveClear();
         parent::exchangeArray(array());
+        $this->saveClear();
+    }
+
+    /**
+     * @return Products\Product
+     */
+    public function current()
+    {
+        return $this->getIterator()->current();
     }
 
     /**

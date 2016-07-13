@@ -24,15 +24,16 @@ class Amount
         return 'Сумма';
     }
 
-    public function total()
+    public function total($pointCheck = false)
     {
-        if($this->total === null) {
+        if($pointCheck || $this->total === null) {
             $this->total = 0;
             foreach($this->products->asArray() as $product) {
-                $this->total += $product->priceTotal();
+                if(!$pointCheck || ($pointCheck && $product->point())) {
+                    $this->total += $product->priceTotal();
+                }
             }
         }
-
         return $this->total;
     }
 

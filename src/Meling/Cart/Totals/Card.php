@@ -43,18 +43,20 @@ class Card
         $this->total = $total;
     }
 
-    public function total()
+    public function total($pointCheck = false)
     {
-        if($this->total === null) {
+        if($pointCheck || $this->total === null) {
             $this->total = 0;
             if(!$this->action || $this->action->useCard()) {
                 if($this->card->discount()) {
                     foreach($this->products as $product) {
-                        if($product instanceof \Meling\Cart\Products\Option) {
-                            if($product->option()->specialSuccess(0)) {
-                                $discount = round($product->priceFinal() / 100 * $this->card->discount());
-                                $this->total += $discount;
-                                $product->priceFinal($discount);
+                        if(!$pointCheck || ($pointCheck && $product->point())) {
+                            if($product instanceof \Meling\Cart\Products\Product\Option) {
+                                if($product->option()->specialSuccess(0)) {
+                                    $discount = round($product->priceFinal() / 100 * $this->card->discount());
+                                    $this->total += $discount;
+                                    $product->priceFinal($discount);
+                                }
                             }
                         }
                     }

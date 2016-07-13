@@ -36,7 +36,7 @@ class Repository extends \Parishop\ORMWrappers\Repository
     {
         $entity  = $this->create($data);
         $point   = $order->point();
-        $product = $order->products()->getIterator()->current();
+        $product = $order->products()->current();
         if($point instanceof \Meling\Cart\Points\Point\Shop) {
             /** @var \Parishop\ORMWrappers\Shop\Entity $shop */
             $shop = $this->builder->components()->orm()->query('shop')->in($point->id())->findOne();
@@ -44,27 +44,27 @@ class Repository extends \Parishop\ORMWrappers\Repository
             $entity->setField('deliveryId', null);
             $entity->setField('shopTariffId', null);
             $entity->setField('addressId', null);
-            $entity->setField('pvz', $point->name() . '. ' . $point->street());
+            $entity->setField('pvz', $point->name() . '. ' . $point->street);
             $entity->setField('countryId', $shop->city()->region()->countryId);
             $entity->setField('regionId', $shop->city()->regionId);
             $entity->setField('cityId', $shop->city()->id());
         }
         if($point instanceof \Meling\Cart\Points\Point\Delivery) {
-            $entity->setField('shopId', $point->shop()->id());
-            $entity->setField('deliveryId', $point->delivery()->id());
-            $entity->setField('shopTariffId', $point->shopTariff()->id());
-            $entity->setField('addressId', $product->addressId);
-            $entity->setField('pvz', $product->pvz);
+            $entity->setField('shopId', $point->shopId);
+            $entity->setField('deliveryId', $point->deliveryId);
+            $entity->setField('shopTariffId', $point->shopTariffId);
+            $entity->setField('addressId', $product->addressId());
+            $entity->setField('pvz', $product->pvz());
             $entity->setField('shipping', $point->name());
-            if($product->addressId) {
-                $address = $cart->addresses()->get($product->addressId);
+            if($product->addressId()) {
+                $address = $cart->addresses()->get($product->addressId());
                 $entity->setField('zip', $address->zip);
                 $entity->setField('countryId', $address->countryId);
                 $entity->setField('regionId', $address->regionId);
                 $entity->setField('cityId', $address->cityId);
-            } elseif($product->cityId) {
+            } elseif($product->cityId()) {
                 /** @var \Parishop\ORMWrappers\City\Entity $city */
-                $city = $this->builder->components()->orm()->query('city')->in($product->cityId)->findOne();
+                $city = $this->builder->components()->orm()->query('city')->in($product->cityId())->findOne();
                 if($city) {
                     $entity->setField('zip', null);
                     $entity->setField('countryId', $city->region()->countryId);
@@ -76,16 +76,16 @@ class Repository extends \Parishop\ORMWrappers\Repository
         $actionId = $cart->actions()->get() ? $cart->actions()->get()->id() : null;
         $cardId   = $cart->cards()->get()->id();
         $entity->setField('orderStatusId', '1');
-        $entity->setField('customerId', $cart->customer()->id());
+        $entity->setField('customerId', $cart->provider()->id());
         $entity->setField('paymentId', $paymentId);
         $entity->setField('actionId', $actionId);
         $entity->setField('customerCardId', $cardId ? $cardId : null);
         $entity->setField('invoice', time());
-        $entity->setField('lastname', $cart->customer()->lastname());
-        $entity->setField('firstname', $cart->customer()->firstname());
-        $entity->setField('middlename', $cart->customer()->middlename());
-        $entity->setField('email', $cart->customer()->email());
-        $entity->setField('phone', $cart->customer()->phone());
+        $entity->setField('lastname', $cart->provider()->lastname());
+        $entity->setField('firstname', $cart->provider()->firstname());
+        $entity->setField('middlename', $cart->provider()->middlename());
+        $entity->setField('email', $cart->provider()->email());
+        $entity->setField('phone', $cart->provider()->phone());
         $entity->setField('total_amount', $order->products()->totals()->amount()->total());
         $entity->setField('total_shipping', $order->products()->totals()->shipping()->total());
         $entity->setField('total_action', $order->products()->totals()->action()->total());
@@ -97,14 +97,14 @@ class Repository extends \Parishop\ORMWrappers\Repository
         $entity->save();
         foreach($order->products() as $product) {
             $orderEntity = null;
-            if($product instanceof \Meling\Cart\Products\Option) {
+            if($product instanceof \Meling\Cart\Products\Product\Option) {
                 /** @var \Parishop\ORMWrappers\OrderOption\Entity $orderEntity */
                 $orderEntity           = $this->builder->components()->orm()->createEntity('orderOption');
                 $orderEntity->optionId = $product->option()->id();
                 $orderEntity->name     = $product->option()->product()->name();
                 $orderEntity->par      = $product->option()->product()->par;
-                $orderEntity->actionId = $order->products()->provider()->actions()->get()->id() ? $order->products()->provider()->actions()->get()->id() : $product->action() ? $product->action()->id() : null;
-            } elseif($product instanceof \Meling\Cart\Products\Certificate) {
+                $orderEntity->actionId = $cart->actions()->get() ? $cart->actions()->get()->id() : null;
+            } elseif($product instanceof \Meling\Cart\Products\Product\Certificate) {
                 /** @var \Parishop\ORMWrappers\OrderCertificates\Entity $orderEntity */
                 $orderEntity                = $this->builder->components()->orm()->createEntity('orderCertificate');
                 $orderEntity->certificateId = $product->certificate()->id();
@@ -123,12 +123,7 @@ class Repository extends \Parishop\ORMWrappers\Repository
                 $orderEntity->total        = $product->priceTotal();
                 $orderEntity->modified     = date('Y-m-d H:i:s');
                 $orderEntity->save();
-                if($product instanceof \Meling\Cart\Products\Option) {
-                    $cart->products()->removeOption($product->id());
-                }
-                if($product instanceof \Meling\Cart\Products\Certificate) {
-                    $cart->products()->removeCertificate($product->id());
-                }
+                $cart->products()->remove($product->id());
             }
         }
         $this->builder->components()->email()->sendTemplate('createOrder', $entity->email, array('order' => $entity));

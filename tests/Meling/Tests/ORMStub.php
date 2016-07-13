@@ -96,6 +96,11 @@ class ORMStub extends \PHPixie\ORM
                         'owner' => 'city',
                         'items' => 'order',
                     ),
+                    array(
+                        'type'  => 'oneToMany',
+                        'owner' => 'actionType',
+                        'items' => 'action',
+                    ),
                 ),
             ]
         ), $wrappers

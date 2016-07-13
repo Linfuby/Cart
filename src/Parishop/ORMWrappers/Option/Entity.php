@@ -22,7 +22,7 @@ namespace Parishop\ORMWrappers\Option;
  * @property \PHPixie\ORM\Relationships\Type\OneTo\Type\Many\Property\Entity\Owner $size
  * @property \PHPixie\ORM\Relationships\Type\OneTo\Type\Many\Property\Entity\Items $restOptions
  * @property \PHPixie\ORM\Relationships\Type\ManyToMany\Property\Entity            $shops
- * @method \Parishop\ORMWrappers\ActionProduct\Entity[] actionProducts()
+ * @method \Parishop\ORMWrappers\ActionProduct\Entity[]|\PHPixie\ORM\Loaders\Loader\Proxy\Editable actionProducts()
  * @method \Parishop\ORMWrappers\Action\Entity[] actions()
  * @method \PHPixie\ORM\Loaders\Loader\Proxy\Editable orderOptions()
  * @method \PHPixie\ORM\Loaders\Loader\Proxy\Editable orders()

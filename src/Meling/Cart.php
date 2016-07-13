@@ -94,13 +94,6 @@ class Cart
         return $this->provider;
     }
 
-    /**
-     * @return Cart\Providers\Order
-     */
-    public function providerOrder()
-    {
-        return $this->provider;
-    }
 
     /**
      * @return Cart\Totals
@@ -122,7 +115,7 @@ class Cart
 
     protected function buildOrders()
     {
-        return new Cart\Orders($this->provider, $this->buildProducts(), $this->buildPoints());
+        return new Cart\Orders($this->provider, $this->products());
     }
 
     protected function instance($name)

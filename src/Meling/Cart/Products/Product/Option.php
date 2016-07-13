@@ -39,6 +39,11 @@ class Option extends \Meling\Cart\Products\Product
         return $this->entity->product()->{$name};
     }
 
+    public function action()
+    {
+        return $this->entity->action();
+    }
+
     public function brandName()
     {
         return $this->entity->product()->brand()->name();

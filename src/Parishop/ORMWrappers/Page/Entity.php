@@ -43,7 +43,9 @@ namespace Parishop\ORMWrappers\Page;
  */
 class Entity extends \Parishop\ORMWrappers\Entity
 {
-
+    /**
+     * @return \Parishop\ORMWrappers\Keyword\Entity[]|\PHPixie\ORM\Loaders\Loader\Proxy\Caching
+     */
     public function keywords()
     {
         return $this->builder->components()->orm()->keyword->where('model', $this->modelName())->where(

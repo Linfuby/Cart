@@ -12,6 +12,8 @@ class Order extends \Meling\Cart\Providers\Provider
      */
     protected $order;
 
+    protected $points;
+
     /**
      * Customer constructor.
      * @param \PHPixie\ORM                       $orm
@@ -141,6 +143,44 @@ class Order extends \Meling\Cart\Providers\Provider
     public function phone()
     {
         return $this->order->getRequiredField('phone');
+    }
+
+    /**
+     * @return \Meling\Cart\Points
+     */
+    public function points()
+    {
+        if($this->points === null) {
+            if($product = $this->products()->current()) {
+                $product->setCityId($this->city()->id());
+                $this->points = $product->points();
+            } else {
+                $this->points = new \Meling\Cart\Points($this->order()->cityId);
+            }
+            if($this->order()->shop()->pickup_point) {
+                try {
+                    // Пытаемся найти этот магазин среди добавленных
+                    $point = $this->points->shops()->get($this->order()->shop()->id());
+                } catch(\Exception $e) {
+                    // Добавляем новый магазин в список доступных ПВЗ
+                    $point = $this->points->shops()->set($this->order()->shop()->id(), $this->order()->shop());
+                }
+                $point->products()->offsetSet($product->id(), 1);
+                $this->points->set($point->id(), $point);
+            }
+            foreach($this->order()->shop()->shopTariffs() as $shopTariff) {
+                if($shopTariff->success($this->points->city())) {
+                    try {
+                        $point = $this->points->deliveries()->get($shopTariff->shopId . $shopTariff->id);
+                    } catch(\Exception $e) {
+                        $point = $this->points->deliveries()->set($shopTariff->shopId . $shopTariff->id, $shopTariff, $this->order()->shopTariffId == $shopTariff->id ? $this->order()->pvz : '');
+                    }
+                    $this->points->set($point->id(), $point);
+                }
+            }
+        }
+
+        return $this->points;
     }
 
     protected function buildProducts()

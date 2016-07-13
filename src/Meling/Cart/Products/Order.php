@@ -60,6 +60,8 @@ class Order extends \Meling\Cart\Products
         }
         $cart->setField('quantity', $product->quantity());
         $cart->setField('price', $product->price());
+        $cart->setField('final', $product->priceFinal());
+        $cart->setField('total', $product->priceTotal());
         $cart->setField('shopId', $product->shopId());
         $cart->setField('shopTariffId', $product->shopTariffId());
         $cart->setField('cityId', $product->cityId());

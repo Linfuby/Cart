@@ -24,18 +24,19 @@ class Action implements Implementation
     /**
      * @param                       $card
      * @param \Meling\Cart\Products $products
+     * @param bool                  $pointCheck
      * @return int
      */
-    public function calculate($card, $products)
+    public function calculate($card, $products, $pointCheck = false)
     {
         if($this->action) {
-            return $this->action->actionType()->calculate($this->action, $card, $products->asArray());
+            return $this->action->actionType()->calculate($this->action, $card, $products->asArray(), $pointCheck);
         } else {
             $total = 0;
             foreach($products->asArray() as $product) {
-                if($product instanceof \Meling\Cart\Products\Option) {
+                if($product instanceof \Meling\Cart\Products\Product\Option) {
                     if($action = $product->action()) {
-                        $total += $action->actionType()->calculate($action, $card, array($product));
+                        $total += $action->actionType()->calculate($action, $card, array($product), $pointCheck);
                     }
                 }
             }
@@ -61,7 +62,7 @@ class Action implements Implementation
 
     public function useSpecial()
     {
-        return (bool)($this->action ? $this->action->getField('price_flag', true) : true);
+        return (bool)($this->action ? $this->action->getField('price_flag', false) : false);
     }
 
 }
